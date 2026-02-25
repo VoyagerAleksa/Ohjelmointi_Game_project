@@ -12,5 +12,5 @@ Hot/cold-tyylinen lentopeli Euroopan lentokentillä! Etsi kadonnutta perintölau
 mysql -u käyttäjä -p
 CREATE DATABASE projectbase;
 USE projectbase;
-SOURCE lp.sql
-SOURCE Database_creation.sql
+SOURCE lp.sql;
+SOURCE Database_creation.sql;
