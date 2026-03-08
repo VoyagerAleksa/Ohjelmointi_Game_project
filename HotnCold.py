@@ -64,7 +64,7 @@ class Directions:
 
 
 class CompassVisualizer:
-    def __init__(self, compass_image_path):
+    def __init__(self, compass_image_path=IMG_PATH):
         self.img = Image.open(compass_image_path)
         self.arrow_length = 0.4
 
@@ -106,5 +106,6 @@ compass = Directions(60.3172, 24.9633, 61.0353, 24.0625)
 print(compass.deg_direction)
 print(compass.cardinal_directions())
 
-compass_img = CompassVisualizer(r"C:\Users\demon\Downloads\10a13a95.png")
+BASE_DIR = os.path.dirname(__file__)
+IMG_PATH = os.path.join(BASE_DIR, "assets", "compass.png")
 compass_img.visualize_direction(compass)
