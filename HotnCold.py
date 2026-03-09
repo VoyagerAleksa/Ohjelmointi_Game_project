@@ -3,7 +3,8 @@ import math
 import matplotlib.pyplot as plt
 from PIL import Image
 
-"""
+
+
 connect = mysql.connector.connect(
     host='127.0.0.1',
     port=3306,
@@ -12,7 +13,7 @@ connect = mysql.connector.connect(
     password='Bubalar60',
     autocommit=True
 )
-"""
+cursor = connect.cursor()
 
 class Directions:
     def __init__(self, lat1, lon1, lat2, lon2):
@@ -64,7 +65,7 @@ class Directions:
 
 
 class CompassVisualizer:
-    def __init__(self, compass_image_path=IMG_PATH):
+    def __init__(self, compass_image_path):
         self.img = Image.open(compass_image_path)
         self.arrow_length = 0.4
 
@@ -91,7 +92,7 @@ class CompassVisualizer:
                  head_width=0.08, head_length=0.1,
                  fc='red', ec='darkred', linewidth=4, zorder=10)
 
-        ax.text(0, 0.9, f'{distance_km:.0f}km',
+        ax.text(0, 0.9, f'Distance: {distance_km:.0f}km',
                 ha='center', va='center', fontsize=20,
                 color='white', weight='bold', zorder=11)
 
@@ -101,11 +102,40 @@ class CompassVisualizer:
             plt.show()
         plt.close()
 
-#TestData
-compass = Directions(60.3172, 24.9633, 61.0353, 24.0625)
-print(compass.deg_direction)
-print(compass.cardinal_directions())
 
-BASE_DIR = os.path.dirname(__file__)
-IMG_PATH = os.path.join(BASE_DIR, "assets", "compass.png")
-compass_img.visualize_direction(compass)
+def get_airport_coordinates(name_part):
+    global cursor
+
+    query = "SELECT latitude_deg, longitude_deg FROM airport WHERE name LIKE %s LIMIT 1"
+    cursor.execute(query, (f"%{name_part}%",))
+
+    coords = cursor.fetchone()
+
+    if coords:
+        cursor.fetchall()
+        return coords[0], coords[1]
+
+    cursor.fetchall()
+    return None, None
+
+def run_airport_distance():
+    code1 = input("Enter the city of the first airport: ").upper()
+    code2 = input("Enter the city code of the second airport: ").upper()
+    coords1 = get_airport_coordinates(code1)
+    coords2 = get_airport_coordinates(code2)
+    print(coords1, coords2)
+    if not coords1 or not coords2:
+        print("No airports")
+        return coords1, coords2  # возвращаем для проверки
+    return coords1, coords2
+
+IMAGE_PATH = r"D:\Metropolia\Ohjelmointi1\Projekti\Compass.png"
+compass_img = CompassVisualizer(IMAGE_PATH)
+
+coords1, coords2 = run_airport_distance()
+
+if coords1 and coords2:
+    compass = Directions(coords1[0], coords1[1], coords2[0], coords2[1])
+    print(f"Direction: {compass.cardinal_directions()}")
+    print(f"Distance: {compass.distance_km():.0f} km")
+    compass_img.visualize_direction(compass)
