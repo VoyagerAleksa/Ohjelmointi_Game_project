@@ -1,0 +1,2 @@
+Welcome to the game “Find Your Suitcase!"
+Your suitcase has been lost somewhere in Europe, and your task is to travel from one airport to another and try to find it.
