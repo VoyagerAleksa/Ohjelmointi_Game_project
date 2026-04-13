@@ -12,12 +12,6 @@ const redIcon = L.icon({
   popupAnchor: [1, -34],
 });
 
-const planeIcon = L.icon({
-  iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
-  iconSize: [32, 32],
-  iconAnchor: [16, 16]
-});
-
 let marker = null;
 let lastLocation = null;
 async function updateLocation() {
