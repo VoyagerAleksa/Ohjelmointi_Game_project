@@ -2,6 +2,7 @@ import mysql.connector
 import random
 import math
 import matplotlib.pyplot as plt
+import json
 from PIL import Image
 
 connection = mysql.connector.connect(
@@ -119,6 +120,15 @@ def get_airport_coordinates(icao):
 
     cursor.fetchall()
     return None, None
+
+def save_current_location(location, filename="map_weather/current_location.json"):
+    data = {
+        "lat": location[0],
+        "lng": location[1]
+    }
+
+    with open(filename, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=4)
 
 def run_airport_distance(code1,code2):
     coords1 = get_airport_coordinates(code1)
@@ -460,6 +470,7 @@ if current_airport_info:
 
 coords_current = get_airport_coordinates(current_location)
 coords_luggage = get_airport_coordinates(luggage)
+save_current_location(coords_current)
 if coords_current and coords_luggage:
     compass = Directions(coords_current[0], coords_current[1],
                         coords_luggage[0], coords_luggage[1])
@@ -486,6 +497,7 @@ while current_location != luggage:
         break
     coords_current = get_airport_coordinates(next_location)
     coords_luggage = get_airport_coordinates(luggage)
+    save_current_location(coords_current)
 
     if coords_current and coords_luggage:
         compass = Directions(coords_current[0], coords_current[1],
