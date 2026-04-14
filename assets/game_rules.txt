@@ -1,7 +1,0 @@
-Find the lost suitcase hidden somewhere in Europe. Move between airports, use clues, and track the distance to locate it. You start in your chosen airport. Type the code or name of another airport to fly there. Each flight increases your flight count. After every move, you’ll see the distance to the suitcase and a hot/cold hint showing whether you’re getting closer or farther.
-On Level 3, you also receive NPC direction hints and a country hint.
-Choose your level before starting.
-Level 1 uses only major international airports.
-Level 2 adds regional airports.
-Level 3 includes small and private airfields.
-Find the suitcase to win and see your score. Fewer flights mean more points.
