@@ -121,15 +121,6 @@ def get_airport_coordinates(icao):
     cursor.fetchall()
     return None, None
 
-def save_current_location(location, filename="map_weather/current_location.json"):
-    data = {
-        "lat": location[0],
-        "lng": location[1]
-    }
-
-    with open(filename, "w", encoding="utf-8") as file:
-        json.dump(data, file, indent=4)
-
 def run_airport_distance(code1,code2):
     coords1 = get_airport_coordinates(code1)
     coords2 = get_airport_coordinates(code2)
@@ -428,6 +419,16 @@ def all_eu_countries():
         print(f"{country[0]}")
     return countries
 
+def save_current_location(coords, location_name, filename="map_weather/current_location.json"):
+    data = {
+        "name": get_current_location(location_name)[0],
+        "lat": coords[0],
+        "lng": coords[1]
+    }
+
+    with open(filename, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=4)
+
 welcome_screen()
 
 name = input("Enter your name: ").strip()
@@ -470,7 +471,7 @@ if current_airport_info:
 
 coords_current = get_airport_coordinates(current_location)
 coords_luggage = get_airport_coordinates(luggage)
-save_current_location(coords_current)
+save_current_location(coords_current, current_location)
 if coords_current and coords_luggage:
     compass = Directions(coords_current[0], coords_current[1],
                         coords_luggage[0], coords_luggage[1])
@@ -493,11 +494,12 @@ while current_location != luggage:
     country = cursor.fetchone()[0]
     visited_airports.append((next_location, name, country))
     current_location = next_location
+    coords_current = get_airport_coordinates(next_location)
+    save_current_location(coords_current, current_location)
     if current_location == luggage:
         break
-    coords_current = get_airport_coordinates(next_location)
+
     coords_luggage = get_airport_coordinates(luggage)
-    save_current_location(coords_current)
 
     if coords_current and coords_luggage:
         compass = Directions(coords_current[0], coords_current[1],
