@@ -102,6 +102,6 @@ async function updateLocation() {
     lastLocation = current_coords
   }
 }
-
+//
 updateLocation()
 setInterval(updateLocation, 2000);
