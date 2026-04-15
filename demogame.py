@@ -130,7 +130,7 @@ def run_airport_distance(code1,code2):
         return coords1, coords2
     return coords1, coords2
 
-IMAGE_PATH = r"G:\Metropolia\Ohjelmisto_1\project\Compass.png"
+IMAGE_PATH = r"assets/Compass.png"
 compass_img = CompassVisualizer(IMAGE_PATH)
 
 """coords1, coords2 = run_airport_distance()
@@ -312,13 +312,13 @@ def valitse_lentokentta(connection, iso_country):
             print("Virheellinen valinta, syötä 1 tai 2.")
 
 def show_welcome_text():
-    path = r"G:\Metropolia\Ohjelmisto_1\project\welcome_screen.txt"
+    path = r"assets/welcome_screen.txt"
     with open(path, "r", encoding="utf-8") as f:
         text = f.read()
         print(text)
 
 def get_random_meme():
-    path = r"G:\Metropolia\Ohjelmisto_1\project\meme.txt"
+    path = r"assets/meme.txt"
     with open(path, "r", encoding="utf-8") as f:
         lines = f.readlines()
         lines = [line.strip() for line in lines if line.strip()]
