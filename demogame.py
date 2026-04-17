@@ -18,6 +18,7 @@ connection = mysql.connector.connect(
 
 cursor = connection.cursor()
 
+
 class Directions:
     def __init__(self, lat1, lon1, lat2, lon2):
         self.lat1_r = math.radians(lat1)
@@ -429,6 +430,21 @@ def save_current_location(coords, location_name, filename="map_weather/current_l
     with open(filename, "w", encoding="utf-8") as file:
         json.dump(data, file, indent=4)
 
+def save_visited_airports(airports, filename="show_route_js/visited_route.json"):
+    data = []
+
+    for icao, airport_name, country_name in airports:
+        coords = get_airport_coordinates(icao)
+        if coords:
+            data.append({
+                "name": airport_name,
+                "lat": coords[0],
+                "lng": coords[1]
+            })
+
+    with open(filename, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=4)
+
 welcome_screen()
 
 name = input("Enter your name: ").strip()
@@ -472,6 +488,7 @@ if current_airport_info:
 coords_current = get_airport_coordinates(current_location)
 coords_luggage = get_airport_coordinates(luggage)
 save_current_location(coords_current, current_location)
+save_visited_airports(visited_airports)
 if coords_current and coords_luggage:
     compass = Directions(coords_current[0], coords_current[1],
                         coords_luggage[0], coords_luggage[1])
@@ -496,6 +513,7 @@ while current_location != luggage:
     current_location = next_location
     coords_current = get_airport_coordinates(next_location)
     save_current_location(coords_current, current_location)
+    save_visited_airports(visited_airports)
     if current_location == luggage:
         break
 
@@ -509,5 +527,5 @@ while current_location != luggage:
         print(f"Distance: {compass.distance_km():.0f} km")
         compass_img.visualize_direction(compass)
 
-
+save_visited_airports(visited_airports)
 final_screen(luggage, visited_airports)
