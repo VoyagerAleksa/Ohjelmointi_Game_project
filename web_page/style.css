@@ -612,6 +612,12 @@
     display: none; flex-direction: column; align-items: center; gap: 10px;
   }
   .auth-success.show { display: flex; animation: fadeUp 0.3s ease; }
-  .success-icon { font-size: 44px; }
+  .success-icon { 
+  width: 100px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 0 10px #4db8ff66);
+  }
   .success-msg { font-size: 14px; color: var(--text-dim); }
   .success-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--accent); letter-spacing: 2px; }
