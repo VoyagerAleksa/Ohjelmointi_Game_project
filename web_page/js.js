@@ -46,7 +46,7 @@ const T = {
     loggedInAs: 'Logged in', exit: 'LOG OUT',
     logoutTitle: 'LOG OUT?', logoutMsg: 'Are you sure you want to log out?<br>Your progress will be saved.',
     cancel: 'CANCEL', confirmLogout: 'LOG OUT',
-    rulesText: `<p>Guess the name of the airport shown on screen. You'll see a photo or clue — type the correct name to score points.</p><p>You have <strong style="color:#e8f4ff">3 attempts</strong> per question. Faster answers earn more points. Streaks give bonus multipliers.</p><p>Choose your level before starting. <strong style="color:#3ddc84">Level 1</strong> covers major international airports. <strong style="color:#ffb347">Level 2</strong> adds regional airports. <strong style="color:#ff5c5c">Level 3</strong> includes small and private airfields.</p>`,
+    rulesText:'<p>Find the lost suitcase hidden somewhere in Europe. Move between airports, use clues, and track the distance to locate it.</p> <p>You start in your chosen airport. Type the code or name of another airport to fly there. Each flight increases your flight count.</p> <p>After every move, you’ll see:</p><br><p> -the distance to the suitcase</p><br> <p>-a hot/cold hint showing whether you’re getting closer or farther</p> <br> <p>Choose your level before starting:</p> <ul> <li><strong style="color:#3ddc84">Level 1</strong> uses only major international airports.</li> <li><strong style="color:#ffb347">Level 2</strong> adds regional airports.</li> <li><strong style="color:#ff5c5c">Level 3</strong> includes small and private airfields.</li> </ul> <p>Find the suitcase to win and see your score.<br>Fewer flights mean more points.</p>',
   },
   fi: {
     gameName: 'Löydä laukku!',
