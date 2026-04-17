@@ -152,7 +152,13 @@
     background: radial-gradient(ellipse at 50% 0%, #4db8ff18 0%, transparent 65%);
     pointer-events: none;
   }
-  .logo-icon { font-size: 52px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 12px #4db8ff88); }
+    .logo-icon {
+    width: 170px;
+    height: auto;
+    display: block;
+    margin: 0 auto 10px;
+    filter: drop-shadow(0 0 12px #4db8ff88);
+    }
   .logo-title {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 40px; letter-spacing: 3px;
