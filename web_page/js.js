@@ -75,7 +75,7 @@ const T = {
     loggedInAs: 'Kirjautunut', exit: 'KIRJAUDU ULOS',
     logoutTitle: 'KIRJAUDUTAAN ULOS?', logoutMsg: 'Haluatko varmasti kirjautua ulos?<br>Edistymisesi tallennetaan.',
     cancel: 'PERUUTA', confirmLogout: 'KIRJAUDU ULOS',
-    rulesText: `<p>Arvaa näytöllä näkyvän lentokentän nimi. Näet kuvan tai vihjeen — kirjoita oikea nimi saadaksesi pisteitä.</p><p>Sinulla on <strong style="color:#e8f4ff">3 yritystä</strong> per kysymys. Nopeammat vastaukset tuovat enemmän pisteitä. Peräkkäiset oikeat vastaukset antavat kerroinbonuksia.</p><p>Valitse taso ennen aloittamista. <strong style="color:#3ddc84">Taso 1</strong> kattaa suuret kansainväliset lentokentät. <strong style="color:#ffb347">Taso 2</strong> lisää alueelliset lentokentät. <strong style="color:#ff5c5c">Taso 3</strong> sisältää pienet ja yksityiset lentokentät.</p>`,
+    rulesText: '<p>Löydä Eurooppaan piilotettu kadonnut matkalaukku. Liiku lentokenttien välillä, käytä vihjeitä ja seuraa etäisyyttä löytääksesi sen.</p> <p>Aloitat valitsemaltasi lentokentältä. Kirjoita toisen lentokentän koodi tai nimi lentääksesi sinne. Jokainen lento kasvattaa lentojen määrääsi.</p> <p>Jokaisen siirron jälkeen näet:</p><br><p> -etäisyyden matkalaukkuun</p><br> <p>- kuuma/kylmä -vihjeen, joka kertoo, lähestytkö vai loittonetko</p> <br> <p>Valitse taso ennen aloittamista:</p> <ul> <li><strong style="color:#3ddc84">Taso 1</strong> käyttää vain suuria kansainvälisiä lentokenttiä.</li> <li><strong style="color:#ffb347">Taso 2</strong> lisää alueellisia lentokenttiä.</li> <li><strong style="color:#ff5c5c">Taso 3</strong> sisältää myös pieniä ja yksityisiä lentokenttiä.</li> </ul> <p>Löydä matkalaukku voittaaksesi ja nähdäksesi pisteesi.<br>Mitä vähemmän lentoja, sitä enemmän pisteitä.</p>',
   }
 };
 
