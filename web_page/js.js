@@ -1,3 +1,4 @@
+
 // ── STARS ──
 (function(){
   const c = document.getElementById('stars');
