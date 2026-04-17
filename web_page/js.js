@@ -14,6 +14,7 @@
     `;
     c.appendChild(s);
   }
+
 })();
 
 // ── TRANSLATIONS ──
