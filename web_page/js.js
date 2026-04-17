@@ -1,4 +1,4 @@
-#Java script file
+
 // ── STARS ──
 (function(){
   const c = document.getElementById('stars');
