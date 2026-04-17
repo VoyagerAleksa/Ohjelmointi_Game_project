@@ -20,7 +20,11 @@
     --radius-sm: 8px;
   }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
   body {
     font-family: 'DM Sans', sans-serif;
@@ -67,7 +71,10 @@
     z-index: 1; pointer-events: none;
     animation: flyAcross 18s linear infinite;
   }
-  .plane-trail svg { width: 56px; opacity: 0.7; }
+  .plane-trail svg {
+    width: 56px;
+    opacity: 0.7;
+  }
   .trail-line {
     position: absolute;
     top: 50%; right: 100%; transform: translateY(-50%);
@@ -152,7 +159,7 @@
     background: radial-gradient(ellipse at 50% 0%, #4db8ff18 0%, transparent 65%);
     pointer-events: none;
   }
-    .logo-icon {
+  .logo-icon {
     width: 170px;
     height: auto;
     display: block;
@@ -172,7 +179,12 @@
   }
 
   /* ── MENU BUTTONS ── */
-  .menu-group { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+  .menu-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
 
   .mbtn {
     font-family: 'Bebas Neue', sans-serif;
@@ -199,17 +211,37 @@
     transition: transform 0.2s;
     border-radius: 0 2px 2px 0;
   }
-  .mbtn:hover { background: #112340cc; border-color: var(--accent); color: var(--accent); }
-  .mbtn:hover::before { transform: scaleY(1); }
-  .mbtn:active { transform: scale(0.99); }
-  .mbtn.disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
-  .mbtn .arr { opacity: 0.5; transition: opacity 0.2s, transform 0.2s; }
-  .mbtn:hover .arr { opacity: 1; transform: translateX(4px); }
+  .mbtn:hover {
+    background: #112340cc;
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .mbtn:hover::before {
+    transform: scaleY(1);
+  }
+  .mbtn:active {
+    transform: scale(0.99);
+  }
+  .mbtn.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .mbtn .arr {
+    opacity: 0.5;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .mbtn:hover .arr {
+    opacity: 1;
+    transform: translateX(4px);
+  }
 
   /* ── SECTION HEADER ── */
   .section-header {
     width: 100%;
-    display: flex; align-items: center; gap: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     margin-bottom: 1.2rem;
   }
   .section-header h2 {
@@ -223,7 +255,12 @@
   }
 
   /* ── LEVEL CARDS ── */
-  .levels { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-bottom: 1.2rem; }
+  .levels {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; width: 100%;
+    margin-bottom: 1.2rem;
+  }
 
   .lvl-card {
     background: var(--card);
@@ -255,15 +292,24 @@
   .lvl-name { font-size: 15px; font-weight: 500; }
   .lvl-desc { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
   .lvl-badge {
-    font-size: 10px; font-weight: 500; letter-spacing: 0.5px;
-    padding: 3px 9px; border-radius: 20px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    padding: 3px 9px;
+    border-radius: 20px;
   }
   .badge-easy   { background: #3ddc8422; color: var(--green); border: 1px solid #3ddc8444; }
   .badge-medium { background: #ffb34722; color: var(--accent-warm); border: 1px solid #ffb34744; }
   .badge-hard   { background: #ff5c5c22; color: var(--red); border: 1px solid #ff5c5c44; }
 
   /* ── SETTINGS ── */
-  .settings-list { width: 100%; display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.2rem; }
+  .settings-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 1.2rem;
+  }
   .setting-row {
     background: var(--card);
     border: 1px solid var(--card-border);
@@ -274,7 +320,10 @@
   }
   .setting-label { font-size: 14px; font-weight: 500; }
 
-  .toggle-group { display: flex; gap: 4px; }
+  .toggle-group {
+    display: flex;
+    gap: 4px;
+  }
   .tog {
     font-family: 'DM Sans', sans-serif;
     font-size: 12px; font-weight: 500; letter-spacing: 0.5px;
@@ -290,7 +339,12 @@
   .tog.off.active { background: #ff5c5c22; color: var(--red);   border-color: #ff5c5c44; }
 
   /* ── LEADERBOARD ── */
-  .leaders { width: 100%; display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.2rem; }
+  .leaders {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 1.2rem; }
   .leader-row {
     background: var(--card);
     border: 1px solid var(--card-border);
