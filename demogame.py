@@ -2,6 +2,7 @@ import mysql.connector
 import random
 import math
 import matplotlib.pyplot as plt
+import json
 from PIL import Image
 
 connection = mysql.connector.connect(
@@ -16,6 +17,7 @@ connection = mysql.connector.connect(
 )
 
 cursor = connection.cursor()
+
 
 class Directions:
     def __init__(self, lat1, lon1, lat2, lon2):
@@ -129,7 +131,7 @@ def run_airport_distance(code1,code2):
         return coords1, coords2
     return coords1, coords2
 
-IMAGE_PATH = r"G:\Metropolia\Ohjelmisto_1\project\Compass.png"
+IMAGE_PATH = r"assets/Compass.png"
 compass_img = CompassVisualizer(IMAGE_PATH)
 
 """coords1, coords2 = run_airport_distance()
@@ -311,13 +313,13 @@ def valitse_lentokentta(connection, iso_country):
             print("Virheellinen valinta, syötä 1 tai 2.")
 
 def show_welcome_text():
-    path = r"G:\Metropolia\Ohjelmisto_1\project\welcome_screen.txt"
+    path = r"assets/welcome_screen.txt"
     with open(path, "r", encoding="utf-8") as f:
         text = f.read()
         print(text)
 
 def get_random_meme():
-    path = r"G:\Metropolia\Ohjelmisto_1\project\meme.txt"
+    path = r"assets/meme.txt"
     with open(path, "r", encoding="utf-8") as f:
         lines = f.readlines()
         lines = [line.strip() for line in lines if line.strip()]
@@ -418,6 +420,31 @@ def all_eu_countries():
         print(f"{country[0]}")
     return countries
 
+def save_current_location(coords, location_name, filename="map_weather/current_location.json"):
+    data = {
+        "name": get_current_location(location_name)[0],
+        "lat": coords[0],
+        "lng": coords[1]
+    }
+
+    with open(filename, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=4)
+
+def save_visited_airports(airports, filename="show_route_js/visited_route.json"):
+    data = []
+
+    for icao, airport_name, country_name in airports:
+        coords = get_airport_coordinates(icao)
+        if coords:
+            data.append({
+                "name": airport_name,
+                "lat": coords[0],
+                "lng": coords[1]
+            })
+
+    with open(filename, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=4)
+
 welcome_screen()
 
 name = input("Enter your name: ").strip()
@@ -460,6 +487,8 @@ if current_airport_info:
 
 coords_current = get_airport_coordinates(current_location)
 coords_luggage = get_airport_coordinates(luggage)
+save_current_location(coords_current, current_location)
+save_visited_airports(visited_airports)
 if coords_current and coords_luggage:
     compass = Directions(coords_current[0], coords_current[1],
                         coords_luggage[0], coords_luggage[1])
@@ -482,9 +511,12 @@ while current_location != luggage:
     country = cursor.fetchone()[0]
     visited_airports.append((next_location, name, country))
     current_location = next_location
+    coords_current = get_airport_coordinates(next_location)
+    save_current_location(coords_current, current_location)
+    save_visited_airports(visited_airports)
     if current_location == luggage:
         break
-    coords_current = get_airport_coordinates(next_location)
+
     coords_luggage = get_airport_coordinates(luggage)
 
     if coords_current and coords_luggage:
@@ -495,5 +527,5 @@ while current_location != luggage:
         print(f"Distance: {compass.distance_km():.0f} km")
         compass_img.visualize_direction(compass)
 
-
+save_visited_airports(visited_airports)
 final_screen(luggage, visited_airports)
