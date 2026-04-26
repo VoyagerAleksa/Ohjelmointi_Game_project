@@ -232,4 +232,10 @@ function toggle(setting, val) {
   const off = document.getElementById(setting + '-off');
   on.classList.toggle('active',  val === 'on');
   off.classList.toggle('active', val === 'off');
+  if (val === "off") {
+      Sound.setSound(false);
+  }
+  else {
+    Sound.setSound(true);
+  }
 }
