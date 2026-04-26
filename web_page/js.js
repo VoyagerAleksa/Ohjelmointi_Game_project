@@ -130,6 +130,7 @@ function showErr(id, msg) {
 function isEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
 
 function doLogin() {
+  Sound.playAmbient()
   clearErrors();
   const user = document.getElementById('login-user').value.trim();
   const pass = document.getElementById('login-pass').value;
@@ -142,6 +143,7 @@ function doLogin() {
 
 function doRegister() {
   clearErrors();
+  Sound.playAmbient()
   const user    = document.getElementById('reg-user').value.trim();
   const email   = document.getElementById('reg-email').value.trim();
   const pass    = document.getElementById('reg-pass').value;
@@ -159,6 +161,7 @@ function doRegister() {
 }
 
 function doGuest() {
+  Sound.playAmbient()
   const name = lang === 'fi' ? 'VIERAS' : 'GUEST';
   showSuccess((lang==='fi'?'TERVETULOA, ':'WELCOME, ') + name, name);
 }
@@ -188,6 +191,7 @@ function hideLogout() {
   document.getElementById('logout-overlay').classList.remove('show');
 }
 function doLogout() {
+  Sound.stopMusic()
   hideLogout();
   currentUser = '';
   // Reset auth form
@@ -216,6 +220,7 @@ function go(id) {
 }
 
 function startGame(level) {
+  Sound.playGameTheme()
   const msg = lang === 'fi'
     ? `Peli alkaa tasolta ${level}! (Tähän tulee pelinäkymä)`
     : `Starting game at Level ${level}! (Game screen goes here)`;
