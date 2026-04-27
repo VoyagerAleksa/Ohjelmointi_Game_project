@@ -1,4 +1,3 @@
-
 // ── STARS ──
 (function(){
   const c = document.getElementById('stars');
@@ -81,6 +80,7 @@ const T = {
 
 let lang = 'en';
 let currentUser = '';
+let currentGame = null;
 
 function setLang(l) {
   lang = l;
@@ -216,10 +216,63 @@ function go(id) {
 }
 
 function startGame(level) {
+  // Map level number to level identifier
+  const levelMap = {
+    1: 'level1',
+    2: 'level2',
+    3: 'level3'
+  };
+
+  const levelId = levelMap[level];
+  if (!levelId) {
+    alert('Invalid level selected');
+    return;
+  }
+
+  // Show loading state
   const msg = lang === 'fi'
-    ? `Peli alkaa tasolta ${level}! (Tähän tulee pelinäkymä)`
-    : `Starting game at Level ${level}! (Game screen goes here)`;
+    ? `Aloitetaan taso ${level}...`
+    : `Starting Level ${level}...`;
   alert(msg);
+
+  // Make API call to start game
+  fetch('/api/start_game', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      player_name: currentUser || 'Guest',
+      level: levelId
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Store game data
+      currentGame = data;
+
+      // Navigate to game screen (you'll need to implement this)
+      go('screen-game'); // Assuming you have a game screen
+
+      // Update UI with game info
+      updateGameUI(data);
+    } else {
+      alert('Error starting game: ' + data.error);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Failed to start game. Please try again.');
+  });
+}
+
+function updateGameUI(gameData) {
+  // Update game information display
+  console.log('Game started:', gameData);
+
+  // You can add more UI updates here as needed
+  // For now, just log the data
 }
 
 function toggle(setting, val) {
