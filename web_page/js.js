@@ -1,3 +1,4 @@
+
 // ── STARS ──
 (function(){
   const c = document.getElementById('stars');
@@ -130,6 +131,7 @@ function showErr(id, msg) {
 function isEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
 
 function doLogin() {
+  Sound.playAmbient()
   clearErrors();
   const user = document.getElementById('login-user').value.trim();
   const pass = document.getElementById('login-pass').value;
@@ -142,6 +144,7 @@ function doLogin() {
 
 function doRegister() {
   clearErrors();
+  Sound.playAmbient()
   const user    = document.getElementById('reg-user').value.trim();
   const email   = document.getElementById('reg-email').value.trim();
   const pass    = document.getElementById('reg-pass').value;
@@ -159,6 +162,7 @@ function doRegister() {
 }
 
 function doGuest() {
+  Sound.playAmbient()
   const name = lang === 'fi' ? 'VIERAS' : 'GUEST';
   showSuccess((lang==='fi'?'TERVETULOA, ':'WELCOME, ') + name, name);
 }
@@ -188,6 +192,7 @@ function hideLogout() {
   document.getElementById('logout-overlay').classList.remove('show');
 }
 function doLogout() {
+  Sound.stopMusic()
   hideLogout();
   currentUser = '';
   // Reset auth form
@@ -230,6 +235,7 @@ function startGame(level) {
   }
 
   // Show loading state
+  Sound.playGameTheme()
   const msg = lang === 'fi'
     ? `Aloitetaan taso ${level}...`
     : `Starting Level ${level}...`;
@@ -280,4 +286,10 @@ function toggle(setting, val) {
   const off = document.getElementById(setting + '-off');
   on.classList.toggle('active',  val === 'on');
   off.classList.toggle('active', val === 'off');
+  if (val === "off") {
+      Sound.setSound(false);
+  }
+  else {
+    Sound.setSound(true);
+  }
 }
