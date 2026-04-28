@@ -6,6 +6,47 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
+let compassImg = null;
+let compassVersion = 0;
+
+const Compass = L.Control.extend({
+  options: {
+    position: 'topright'
+  },
+
+  onAdd: function () {
+    const div = L.DomUtil.create('div', 'compass-control');
+
+    compassImg = L.DomUtil.create('img', '', div);
+    compassImg.alt = 'compass';
+    compassImg.style.width = '300px';
+    compassImg.style.height = '300px';
+    compassImg.src = `../compass.png?v=${Date.now()}`;
+
+    return div;
+  }
+});
+
+map.addControl(new Compass());
+
+function updateCompassImage() {
+  if (!compassImg) return;
+
+  const nextSrc = `../compass.png?v=${Date.now()}_${compassVersion++}`;
+  const preloader = new Image();
+
+  preloader.onload = function () {
+    compassImg.src = nextSrc;
+    console.log('compass updated:', nextSrc);
+  };
+
+  preloader.onerror = function () {
+    console.log('new compass image not ready yet');
+  };
+
+  preloader.src = nextSrc;
+}
+
 const redIcon = L.icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
   iconSize: [25, 41],
@@ -63,3 +104,5 @@ async function updateLocation() {
 
 updateLocation();
 setInterval(updateLocation, 2000);
+updateCompassImage()
+setInterval(updateCompassImage, 1500);
