@@ -479,7 +479,7 @@ visited_airports = []
 current_airport_info = get_airport_coordinates(current_location)
 if current_airport_info:
     cursor.execute("SELECT name FROM airport WHERE ident = %s", (current_location,))
-    name = cursor.fetchone()[0]
+    airport_name = cursor.fetchone()[0]
     cursor.execute("SELECT name FROM country WHERE iso_country = (SELECT iso_country FROM airport WHERE ident = %s)", (current_location,))
     country = cursor.fetchone()[0]
     visited_airports.append((current_location, name, country))
@@ -505,7 +505,7 @@ while current_location != luggage:
         print("No airport selected, try again.")
         continue
     cursor.execute("SELECT name FROM airport WHERE ident = %s", (next_location,))
-    name = cursor.fetchone()[0]
+    airport_name = cursor.fetchone()[0]
     cursor.execute("SELECT name FROM country WHERE iso_country = (SELECT iso_country FROM airport WHERE ident = %s)",
                    (next_location,))
     country = cursor.fetchone()[0]
