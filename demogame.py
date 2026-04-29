@@ -1,10 +1,8 @@
 import mysql.connector
 import random
-import math
-import matplotlib.pyplot as plt
+from distance_direction import *
 import json
-from PIL import Image
-# test test
+
 connection = mysql.connector.connect(
     host='127.0.0.1',
     port=3306,
@@ -17,106 +15,6 @@ connection = mysql.connector.connect(
 )
 
 cursor = connection.cursor()
-
-
-class Directions:
-    def __init__(self, lat1, lon1, lat2, lon2):
-        self.lat1_r = math.radians(lat1)
-        self.lon1_r = math.radians(lon1)
-        self.lat2_r = math.radians(lat2)
-        self.lon2_r = math.radians(lon2)
-        self.deg_direction = self.direction_degrees()
-
-    def direction_degrees(self):
-        dist_lon = self.lon2_r - self.lon1_r
-        x = math.sin(dist_lon) * math.cos(self.lat2_r)
-        y = (math.cos(self.lat1_r) * math.sin(self.lat2_r) -
-             math.sin(self.lat1_r) * math.cos(self.lat2_r) * math.cos(dist_lon))
-        deg_direction = math.atan2(x,y)
-        direction = (math.degrees(deg_direction) + 360) % 360
-        return direction
-
-    def cardinal_directions(self):
-        direction = self.direction_degrees()
-        if direction >= 337.5 or direction < 22.5:
-            return "North(N)"
-        elif direction < 67.5:
-            return "Northeast(NE)"
-        elif direction < 112.5:
-            return "East(E)"
-        elif direction < 157.5:
-            return "Southeast(SE)"
-        elif direction < 202.5:
-            return "South(S)"
-        elif direction < 247.5:
-            return "Southwest(SW)"
-        elif direction < 292.5:
-            return "West(W)"
-        else:  # 292.5-337.5
-            return "NorthWest(NW)"
-
-    def distance_km(self):
-        dlat = self.lat2_r - self.lat1_r
-        dlon = self.lon2_r - self.lon1_r
-
-        a = (math.sin(dlat / 2) ** 2 +
-             math.cos(self.lat1_r) * math.cos(self.lat2_r) *
-             math.sin(dlon / 2) ** 2)
-
-        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-        R = 6371
-        return R * c
-
-
-class CompassVisualizer:
-    def __init__(self, compass_image_path):
-        self.img = Image.open(compass_image_path).convert("RGBA")
-        self.arrow_length = 0.4
-
-    def visualize_direction(self, compass_object, save_path="compass.png", show_image=False):
-        deg_direction = compass_object.deg_direction
-        distance_km = compass_object.distance_km()
-
-        fig, ax = plt.subplots(figsize=(6, 6))
-        fig.patch.set_alpha(0.0)
-        ax.patch.set_alpha(0.0)
-        ax.set_position([0, 0, 1, 1])
-
-        ax.set_xlim(-1, 1)
-        ax.set_ylim(-1, 1)
-        ax.set_aspect('equal')
-        ax.axis('off')
-
-        rotated_img = self.img.rotate(deg_direction, expand=True)
-
-        img_width = 1.8
-        img_height = img_width * (rotated_img.height / rotated_img.width)
-
-        ax.imshow(
-            rotated_img,
-            extent=[-img_width / 2, img_width / 2, -img_height / 2, img_height / 2]
-        )
-        ax.arrow(
-            0, 0, 0, self.arrow_length,
-            head_width=0.08, head_length=0.1,
-            fc='red', ec='darkred', linewidth=4, zorder=10
-        )
-        ax.text(
-            0, -0.9, f'Distance: {distance_km:.0f} km',
-            ha='center', va='center',
-            fontsize=20, color='black', weight='bold', zorder=11
-        )
-        plt.savefig(
-            save_path,
-            dpi=150,
-            transparent=True,
-            bbox_inches='tight',
-            pad_inches=0
-        )
-        if show_image:
-            plt.show()
-        plt.close()
-
 
 def get_airport_coordinates(icao):
     global cursor
@@ -142,17 +40,6 @@ def run_airport_distance(code1,code2):
         return coords1, coords2
     return coords1, coords2
 
-IMAGE_PATH = r"assets/Compass.png"
-compass_img = CompassVisualizer(IMAGE_PATH)
-
-"""coords1, coords2 = run_airport_distance()
-
-if coords1 and coords2:
-    compass = Directions(coords1[0], coords1[1], coords2[0], coords2[1])
-    print(f"Direction: {compass.cardinal_directions()}")
-    print(f"Distance: {compass.distance_km():.0f} km")
-    compass_img.visualize_direction(compass)
-"""
 def get_neighbors(country):
     query_center = """
                    SELECT AVG(latitude_deg), AVG(longitude_deg)
@@ -431,11 +318,13 @@ def all_eu_countries():
         print(f"{country[0]}")
     return countries
 
-def save_current_location(coords, location_name, filename="map_weather/current_location.json"):
+def save_current_location(coords, location_name, direction, distance, filename="map_weather/current_location.json"):
     data = {
         "name": get_current_location(location_name)[0],
         "lat": coords[0],
-        "lng": coords[1]
+        "lng": coords[1],
+        "heading": direction,
+        "distance": distance,
     }
 
     with open(filename, "w", encoding="utf-8") as file:
@@ -498,15 +387,10 @@ if current_airport_info:
 
 coords_current = get_airport_coordinates(current_location)
 coords_luggage = get_airport_coordinates(luggage)
-save_current_location(coords_current, current_location)
+direction = Directions(coords_current, coords_luggage)
+save_current_location(coords_current, current_location, direction.direction_degrees(), direction.distance_km())
 save_visited_airports(visited_airports)
-if coords_current and coords_luggage:
-    compass = Directions(coords_current[0], coords_current[1],
-                        coords_luggage[0], coords_luggage[1])
-    print("Lost bag:")
-    print(f"Direction: {compass.cardinal_directions()}")
-    print(f"Distance: {compass.distance_km():.0f} km")
-    compass_img.visualize_direction(compass, "compass.png")
+
 
 # maingame
 while current_location != luggage:
@@ -523,20 +407,12 @@ while current_location != luggage:
     visited_airports.append((next_location, name, country))
     current_location = next_location
     coords_current = get_airport_coordinates(next_location)
-    save_current_location(coords_current, current_location)
+    direction = Directions(coords_current, coords_luggage)
+    save_current_location(coords_current, current_location, direction.direction_degrees(), direction.distance_km())
     save_visited_airports(visited_airports)
     if current_location == luggage:
         break
-
     coords_luggage = get_airport_coordinates(luggage)
-
-    if coords_current and coords_luggage:
-        compass = Directions(coords_current[0], coords_current[1],
-                             coords_luggage[0], coords_luggage[1])
-        print("Lost bag:")
-        print(f"Direction: {compass.cardinal_directions()}")
-        print(f"Distance: {compass.distance_km():.0f} km")
-        compass_img.visualize_direction(compass)
 
 save_visited_airports(visited_airports)
 final_screen(luggage, visited_airports)
