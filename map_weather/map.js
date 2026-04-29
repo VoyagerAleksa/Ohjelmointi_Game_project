@@ -1,13 +1,26 @@
 const default_position = [60.31896301700641, 24.9678752369183];
-const map = L.map('map').setView(default_position, 6);
 
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+const key = 'FrMSh0rZXij8VQlwBM3v';
+      const map = L.map('map').setView(default_position, 6);
+      const mtLayer = L.maptiler.maptilerLayer({
+        apiKey: key,
+        style: "https://api.maptiler.com/maps/019dd959-84c1-7825-acea-dda99483f25e/style.json?key=FrMSh0rZXij8VQlwBM3v", //optional
+      }).addTo(map);
+
+/*L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-}).addTo(map);
+}).addTo(map);*/
 
-let compassImg = null;
-let compassVersion = 0;
+const redIcon = L.icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+});
+
+let compassBase = null;
+let currentRotation = 0;
 
 const Compass = L.Control.extend({
   options: {
@@ -17,42 +30,36 @@ const Compass = L.Control.extend({
   onAdd: function () {
     const div = L.DomUtil.create('div', 'compass-control');
 
-    compassImg = L.DomUtil.create('img', '', div);
-    compassImg.alt = 'compass';
-    compassImg.style.width = '300px';
-    compassImg.style.height = '300px';
-    compassImg.src = `../compass.png?v=${Date.now()}`;
+    div.innerHTML = `
+      <div class="compass-wrap">
+        <img src="../assets/Compass.png" alt="compass" class="compass-base">
+        <div class="compass-arrow"></div>
+        <div class="compass-distance" id="compass-distance">0 km</div>
+      </div>
+    `;
 
+    compassBase = div.querySelector('.compass-base');
     return div;
   }
 });
 
 map.addControl(new Compass());
 
-function updateCompassImage() {
-  if (!compassImg) return;
+function rotateCompassSmooth(targetAngle) {
+  if (!compassBase) return;
 
-  const nextSrc = `../compass.png?v=${Date.now()}_${compassVersion++}`;
-  const preloader = new Image();
+  let delta = ((targetAngle - currentRotation + 540) % 360) - 180;
+  currentRotation += delta;
 
-  preloader.onload = function () {
-    compassImg.src = nextSrc;
-    console.log('compass updated:', nextSrc);
-  };
-
-  preloader.onerror = function () {
-    console.log('new compass image not ready yet');
-  };
-
-  preloader.src = nextSrc;
+  compassBase.style.transform = `rotate(${currentRotation}deg)`;
 }
 
-const redIcon = L.icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-});
+function updateCompassDistance(distanceKm) {
+  const distanceEl = document.getElementById('compass-distance');
+  if (distanceEl) {
+    distanceEl.textContent = `${Math.round(distanceKm)} km`;
+  }
+}
 
 let marker = null;
 let lastLocation = null;
@@ -61,11 +68,16 @@ async function updateLocation() {
   const response = await fetch('current_location.json?' + Date.now());
   const current_location = await response.json();
   const current_coords = [current_location.lat, current_location.lng];
+  const direction = current_location.heading
+  const distance = current_location.distance
 
   const locationChanged =
     !lastLocation ||
     lastLocation[0] !== current_location.lat ||
     lastLocation[1] !== current_location.lng;
+
+  rotateCompassSmooth(direction)
+  updateCompassDistance(distance)
 
   const weather = await getWeather(current_location.lat, current_location.lng);
   const weatherInfo = getWeatherInfo(weather.weather_code);
@@ -104,5 +116,3 @@ async function updateLocation() {
 
 updateLocation();
 setInterval(updateLocation, 2000);
-updateCompassImage()
-setInterval(updateCompassImage, 1500);

@@ -1,0 +1,99 @@
+:root {
+  --sky: #0a1628;
+  --sky-mid: #0e2040;
+  --sky-light: #163058;
+  --horizon: #1a4a7a;
+  --accent: #4db8ff;
+  --accent-glow: #4db8ff55;
+  --accent-warm: #ffb347;
+  --text: #e8f4ff;
+  --text-dim: #7aaed6;
+  --text-mute: #3d6a99;
+  --card: #0d1e35cc;
+  --card-border: #1e4070;
+  --green: #3ddc84;
+  --red: #ff5c5c;
+  --gold: #ffd700;
+  --silver: #c0c0c0;
+  --bronze: #cd7f32;
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--sky);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+}
+
+#map {
+  width: 100%;
+  height: 100vh;
+  background: var(--sky);
+}
+
+/* compass */
+.compass-control {
+  margin: 0 !important;
+}
+
+.leaflet-top.leaflet-right .compass-control {
+  margin: 0 !important;
+}
+
+.compass-wrap {
+  position: relative;
+  width: 300px;
+  height: 340px;
+}
+
+.compass-base {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 300px;
+  height: 300px;
+  display: block;
+  transform-origin: center center;
+  transition: transform 0.8s linear;
+}
+
+.compass-arrow {
+  position: absolute;
+  left: 50%;
+  top: 150px;
+  transform: translate(-50%, -100%);
+  width: 6px;
+  height: 95px;
+  background: red;
+  border-radius: 4px;
+  z-index: 10;
+  box-shadow: 0 0 4px rgba(0,0,0,0.35);
+}
+
+.compass-arrow::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 14px solid red;
+}
+
+.compass-distance {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 700;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+  z-index: 11;
+}
