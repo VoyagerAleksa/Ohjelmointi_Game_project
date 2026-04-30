@@ -1,5 +1,5 @@
-const DATA_SOURCE = 'json';                    // 'json' | 'api'
-const JSON_FILE   = 'game_data.json';          //  json
+const DATA_SOURCE = 'json';
+const JSON_FILE   = 'game_data.json';
 const API_BASE    = 'http://localhost:5000/api';
 
 let luggage      = null;
@@ -24,18 +24,15 @@ async function startNewGame() {
   distancePins.forEach(p => p.remove());
   distancePins.length = 0;
   updateBadge();
-  hidePopup();
   setFabState('loading');
 
   try {
     let countries = [];
 
     if (DATA_SOURCE === 'json') {
-      // ── читаем из game_data.json ──
-      const res  = await fetch(JSON_FILE + '?t=' + Date.now()); // ?t= чтобы не кешировалось
+      const res  = await fetch(JSON_FILE + '?t=' + Date.now());
       const data = await res.json();
       countries  = data.countries;
-
     } else {
       const res  = await fetch(`${API_BASE}/random-country`);
       const data = await res.json();
@@ -46,8 +43,6 @@ async function startNewGame() {
     }
 
     if (!countries || countries.length === 0) throw new Error('No countries in file');
-
-    // Selecting a random item
     luggage = countries[Math.floor(Math.random() * countries.length)];
     setFabState('ready');
 
@@ -57,7 +52,7 @@ async function startNewGame() {
   }
 }
 
-// ── Map click handling  ──
+// ── Implement map click logic ──
 function hookMapClick() {
   if (typeof map === 'undefined') { setTimeout(hookMapClick, 300); return; }
 
@@ -87,7 +82,7 @@ function hookMapClick() {
   });
 }
 
-// ── Fog effect implementation   ──
+// ── Triggering the fog effect on button click ──
 function showFog() {
   if (typeof map === 'undefined' || !luggage) return;
   if (fogCircle) { fogCircle.remove(); fogCircle = null; }
@@ -117,10 +112,14 @@ function showFog() {
   }, 7000);
 
   map.flyTo([luggage.lat, luggage.lng], 5, { animate: true, duration: 1.5 });
-  hidePopup();
 }
 
-// ── Implement “found” state logic ──
+// ── Immediate fog effect activation on button click ──
+function togglePopup() {
+  showFog();
+}
+
+
 async function foundLuggage() {
   if (fogCircle) { fogCircle.remove(); fogCircle = null; }
 
@@ -134,7 +133,6 @@ async function foundLuggage() {
     .openPopup();
   map.flyTo([luggage.lat, luggage.lng], 6, { animate: true, duration: 2 });
 
-  // Saving results to the leaderboard (JSON mode, temporary storage via localStorage)
   if (DATA_SOURCE === 'json') {
     saveToLocalLeaderboard(guessCount);
   } else {
@@ -151,8 +149,6 @@ async function foundLuggage() {
       });
     } catch(e) { console.warn('Leaderboard save failed:', e); }
   }
-
-  showResult();
 }
 
 function saveToLocalLeaderboard(attempts) {
@@ -172,78 +168,17 @@ function saveToLocalLeaderboard(attempts) {
   } catch(e) {}
 }
 
-// ── ПОПАП ──
-function togglePopup() {
-  popupVisible ? hidePopup() : showPopupMain();
-}
-
-function showPopupMain() {
-  popupVisible = true;
-  const popup = document.getElementById('lug-popup');
-
-  const sourceTag = DATA_SOURCE === 'json'
-    ? `<div class="lug-source-tag">📁 JSON mode</div>`
-    : `<div class="lug-source-tag" style="color:#3ddc84;border-color:#3ddc8444">🔌 API mode</div>`;
-
-  const countryLine = luggage
-    ? `<div class="lug-country-tag">🌍 Searching in Europe...</div>`
-    : `<div class="lug-country-tag" style="color:#ffb347">⏳ Loading...</div>`;
-
-  popup.innerHTML = `
-    <div class="lug-popup-header">
-      <span>Avustaja</span>
-      <button class="lug-popup-close" onclick="hidePopup()">✕</button>
-    </div>
-    <div class="lug-popup-body">
-      ${sourceTag}
-      ${countryLine}
-      <div class="lug-attempts">Attempts: <strong id="lug-att-num">${guessCount}</strong></div>
-      <button class="lug-fog-btn" onclick="showFog()" ${!luggage ? 'disabled' : ''}>
-        🌫️ Show hint zone
-      </button>
-      <button class="lug-new-btn" onclick="startNewGame()">🔄</button>
-    </div>
-  `;
-  popup.classList.add('lug-popup-open');
-}
-
-function showResult() {
-  popupVisible = true;
-  const score = Math.max(0, 1000 - guessCount * 80);
-  const popup = document.getElementById('lug-popup');
-  popup.innerHTML = `
-    <div class="lug-popup-header">
-      <span>🎉 Found!</span>
-      <button class="lug-popup-close" onclick="hidePopup()">✕</button>
-    </div>
-    <div class="lug-popup-body">
-      <div class="lug-country-tag" style="color:#3ddc84;border-color:#3ddc8433">✅ ${luggage.name}</div>
-      <div class="lug-attempts">Attempts: <strong>${guessCount}</strong></div>
-      <div class="lug-attempts">Score: <strong style="color:#ffe066">${score}</strong></div>
-      <button class="lug-fog-btn" onclick="startNewGame()">🔄 Play again</button>
-    </div>
-  `;
-  popup.classList.add('lug-popup-open');
-}
-
-function hidePopup() {
-  popupVisible = false;
-  document.getElementById('lug-popup').classList.remove('lug-popup-open');
-}
-
 function setFabState(state) {
   const fab = document.getElementById('lug-fab');
   if (!fab) return;
   fab.style.opacity     = state === 'loading' ? '0.6' : '1';
   fab.style.borderColor = state === 'error'   ? '#ff5c5c' : '';
-  fab.title = state === 'loading' ? 'Loading...' : state === 'error' ? 'Load error — check console' : 'Lost Luggage Assistant';
+  fab.title = state === 'loading' ? 'Loading...' : state === 'error' ? 'Load error — check console' : 'Show hint zone';
 }
 
 function updateBadge() {
   const b = document.getElementById('lug-badge');
   if (b) b.textContent = guessCount;
-  const n = document.getElementById('lug-att-num');
-  if (n) n.textContent = guessCount;
 }
 
 function haversine(lat1, lon1, lat2, lon2) {
@@ -258,11 +193,10 @@ function haversine(lat1, lon1, lat2, lon2) {
 function injectUI() {
   const wrap = document.createElement('div');
   wrap.innerHTML = `
-    <div id="lug-popup"></div>
-   <button id="lug-fab" onclick="togglePopup()" title="Lost Luggage Assistant">
-  <img src="mem_cat.jpg" style="width:34px;height:34px;object-fit:contain;border-radius:50%;">
-  <span id="lug-badge" class="lug-badge">0</span>
-</button>
+    <button id="lug-fab" onclick="togglePopup()" title="Show hint zone">
+      <img src="mem_cat.jpg" style="width:80px;height:80px;object-fit:contain;border-radius:50%;">
+      <span id="lug-badge" class="lug-badge">0</span>
+    </button>
   `;
   document.body.appendChild(wrap);
 }
@@ -272,7 +206,7 @@ function injectStyles() {
   s.textContent = `
     #lug-fab {
       position: fixed; bottom: 24px; right: 24px; z-index: 10000;
-      width: 58px; height: 58px; border-radius: 50%;
+      width: 80px; height: 80px; border-radius: 50%;
       background: #0e2040; border: 2px solid #1e4a7a;
       box-shadow: 0 4px 20px rgba(0,0,0,0.45);
       font-size: 26px; cursor: pointer;
@@ -291,64 +225,6 @@ function injectStyles() {
       display: flex; align-items: center; justify-content: center;
       font-family: system-ui, sans-serif; border: 2px solid #fff;
     }
-
-    #lug-popup {
-      position: fixed; bottom: 92px; right: 24px; z-index: 9999;
-      width: 220px; background: #07101e;
-      border: 1px solid #1e4070; border-radius: 14px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-      font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden;
-      transform: scale(0.85) translateY(10px); transform-origin: bottom right;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.22s ease, transform 0.25s cubic-bezier(0.16,1,0.3,1);
-    }
-    #lug-popup.lug-popup-open { opacity: 1; transform: scale(1) translateY(0); pointer-events: all; }
-
-    .lug-popup-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 14px; border-bottom: 1px solid #1e4070;
-      font-size: 13px; font-weight: 600; color: #e8f4ff;
-    }
-    .lug-popup-close { background: none; border: none; color: #3d6a99; font-size: 15px; cursor: pointer; padding: 2px 4px; transition: color 0.15s; }
-    .lug-popup-close:hover { color: #e8f4ff; }
-
-    .lug-popup-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 8px; }
-
-    .lug-source-tag {
-      font-size: 10px; font-weight: 600; letter-spacing: 0.5px;
-      color: #4db8ff; background: rgba(77,184,255,0.08);
-      border: 1px solid rgba(77,184,255,0.2); border-radius: 6px;
-      padding: 3px 8px; display: inline-block;
-    }
-
-    .lug-country-tag {
-      font-size: 12px; font-weight: 600; color: #4db8ff;
-      background: rgba(77,184,255,0.08); border: 1px solid rgba(77,184,255,0.2);
-      border-radius: 8px; padding: 6px 10px;
-    }
-    .lug-attempts {
-      font-size: 12px; color: #7aaed6;
-      background: rgba(77,184,255,0.06); border: 1px solid rgba(77,184,255,0.12);
-      border-radius: 8px; padding: 6px 10px;
-    }
-    .lug-attempts strong { color: #4db8ff; }
-
-    .lug-fog-btn {
-      width: 100%; padding: 9px;
-      background: rgba(255,224,102,0.1); border: 1px solid rgba(255,224,102,0.3);
-      border-radius: 8px; color: #ffe066; font-size: 13px; font-weight: 500;
-      cursor: pointer; transition: all 0.18s; font-family: inherit;
-    }
-    .lug-fog-btn:hover { background: rgba(255,224,102,0.2); border-color: #ffe066; }
-    .lug-fog-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .lug-new-btn {
-      width: 100%; padding: 8px; background: transparent;
-      border: 1px solid #1e4070; border-radius: 8px;
-      color: #7aaed6; font-size: 12px; cursor: pointer;
-      transition: all 0.18s; font-family: inherit;
-    }
-    .lug-new-btn:hover { border-color: #4db8ff; color: #4db8ff; }
 
     .lug-tooltip {
       background: rgba(6,12,28,0.92) !important; border: 1px solid #1e4070 !important;
