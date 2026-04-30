@@ -191,7 +191,7 @@ function injectUI() {
   const wrap = document.createElement('div');
   wrap.innerHTML = `
     <button id="lug-fab" onclick="togglePopup()" title="Show hint zone">
-      <img src="mem_cat.jpg" style="width:80px;height:80px;object-fit:contain;border-radius:50%;">
+      <img src="../assets/mem_cat.jpg" class="lug-fab-icon" alt="Assistant" style="width:80px;height:80px;object-fit:cover;border-radius:50%;">
     </button>
   `;
   document.body.appendChild(wrap);
