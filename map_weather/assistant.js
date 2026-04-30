@@ -176,10 +176,7 @@ function setFabState(state) {
   fab.title = state === 'loading' ? 'Loading...' : state === 'error' ? 'Load error — check console' : 'Show hint zone';
 }
 
-function updateBadge() {
-  const b = document.getElementById('lug-badge');
-  if (b) b.textContent = guessCount;
-}
+function updateBadge() {}
 
 function haversine(lat1, lon1, lat2, lon2) {
   const R = 6371;
@@ -195,7 +192,6 @@ function injectUI() {
   wrap.innerHTML = `
     <button id="lug-fab" onclick="togglePopup()" title="Show hint zone">
       <img src="mem_cat.jpg" style="width:80px;height:80px;object-fit:contain;border-radius:50%;">
-      <span id="lug-badge" class="lug-badge">0</span>
     </button>
   `;
   document.body.appendChild(wrap);
