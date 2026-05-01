@@ -67,7 +67,7 @@ function shortestAngleDelta(from, to) {
   return ((to - from + 540) % 360) - 180;
 }
 
-function animatePlane(marker, fromCoords, toCoords, newHeading, duration = 1500) {
+function animatePlane(marker, fromCoords, toCoords, newHeading, duration = 900) {
   if (animationFrame) {
     cancelAnimationFrame(animationFrame);
   }
@@ -111,6 +111,7 @@ async function updateLocation() {
     const current_location = await response.json();
     const current_coords = [current_location.lat, current_location.lng];
     const direction = current_location.heading ?? 0;
+    const m_direction = current_location.m_direction ?? 0;
     const distance = current_location.distance ?? 0;
 
     const locationChanged =
@@ -157,7 +158,7 @@ async function updateLocation() {
     if (!marker) {
       marker = L.marker(current_coords, {
         icon: planeIcon,
-        rotationAngle: direction,
+        rotationAngle: m_direction,
         rotationOrigin: 'center center'
       }).addTo(map).bindPopup(popupHtml, popupOptions);
 
@@ -166,10 +167,10 @@ async function updateLocation() {
       marker.setPopupContent(popupHtml);
 
       if (locationChanged) {
-        animatePlane(marker, lastLocation, current_coords, direction, 1800);
+        animatePlane(marker, lastLocation, current_coords, m_direction, 1800);
       } else {
-        marker.setRotationAngle(direction);
-        currentHeading = direction;
+        marker.setRotationAngle(m_direction);
+        currentHeading = m_direction;
       }
     }
 

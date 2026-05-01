@@ -318,13 +318,14 @@ def all_eu_countries():
         print(f"{country[0]}")
     return countries
 
-def save_current_location(coords, location_name, direction, distance, filename="map_weather/current_location.json"):
+def save_current_location(coords, location_name, direction, m_direction, distance, filename="map_weather/current_location.json"):
     data = {
         "name": get_current_location(location_name)[0],
         "lat": coords[0],
         "lng": coords[1],
         "heading": direction,
         "distance": distance,
+        "m_direction": m_direction,
     }
 
     with open(filename, "w", encoding="utf-8") as file:
@@ -388,7 +389,8 @@ if current_airport_info:
 coords_current = get_airport_coordinates(current_location)
 coords_luggage = get_airport_coordinates(luggage)
 direction = Directions(coords_current, coords_luggage)
-save_current_location(coords_current, current_location, direction.direction_degrees(), direction.distance_km())
+m_direction = Directions(coords_current, coords_luggage)
+save_current_location(coords_current, current_location, direction.direction_degrees(), m_direction.direction_degrees(), direction.distance_km())
 save_visited_airports(visited_airports)
 
 
@@ -405,10 +407,11 @@ while current_location != luggage:
                    (next_location,))
     country = cursor.fetchone()[0]
     visited_airports.append((next_location, name, country))
+    m_direction = Directions(coords_current, get_airport_coordinates(next_location))
     current_location = next_location
     coords_current = get_airport_coordinates(next_location)
     direction = Directions(coords_current, coords_luggage)
-    save_current_location(coords_current, current_location, direction.direction_degrees(), direction.distance_km())
+    save_current_location(coords_current, current_location, direction.direction_degrees(),m_direction.direction_degrees(), direction.distance_km())
     save_visited_airports(visited_airports)
     if current_location == luggage:
         break
