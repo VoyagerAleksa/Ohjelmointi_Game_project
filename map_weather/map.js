@@ -116,3 +116,10 @@ async function updateLocation() {
 
 updateLocation();
 setInterval(updateLocation, 2000);
+
+//Victory screen invocation
+showVictory({
+  airports: ['HEL', 'ARN', 'CPH', 'AMS', 'FRA'],  // Keep the component static for now
+  time: '12:34',                                     // Keep the component static for now
+  points: 870                                        // Keep the component static for now
+});
