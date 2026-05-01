@@ -6,20 +6,20 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <link rel="stylesheet" href="map_style.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script src="https://unpkg.com/leaflet-moving-marker/MovingMarker.js"></script>
+    <script src="https://unpkg.com/leaflet-rotatedmarker/leaflet.rotatedMarker.js"></script>
     <script src="https://cdn.maptiler.com/maptiler-sdk-js/v4.0.1/maptiler-sdk.umd.min.js"></script>
     <link href="https://cdn.maptiler.com/maptiler-sdk-js/v4.0.1/maptiler-sdk.css" rel="stylesheet" />
     <script src="https://cdn.maptiler.com/leaflet-maptilersdk/v4.1.0/leaflet-maptilersdk.umd.min.js"></script>
 </head>
 <body>
-    <div id="data" style="width: 100%">
+    <div id="map" style="width: 100%; height: 90vh;"></div>
+    <script src="weather.js"></script>
+    <script src="map.js"></script>
+     <div id="data" style="width: 100%; height: 10vh;">
         <h1 style="align-self: center">Flying route test</h1>
         <button type="submit" id="show_route" style="margin-bottom: 0.5rem">Show full route</button>
         <script src="../show_route_js/show_route.js"></script>
     </div>
-    <div id="map" style="width: 100%; height: 800px;"></div>
-    <script src="weather.js"></script>
-    <script src="map.js"></script>
     
     <script src="victory.js"></script>  
     <script src="assistant.js"></script>

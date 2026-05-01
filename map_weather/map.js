@@ -1,22 +1,18 @@
 const default_position = [60.31896301700641, 24.9678752369183];
 
 const key = 'FrMSh0rZXij8VQlwBM3v';
-      const map = L.map('map').setView(default_position, 6);
-      const mtLayer = L.maptiler.maptilerLayer({
-        apiKey: key,
-        style: "https://api.maptiler.com/maps/019dd959-84c1-7825-acea-dda99483f25e/style.json?key=FrMSh0rZXij8VQlwBM3v", //optional
-      }).addTo(map);
+const map = L.map('map').setView(default_position, 6);
 
-/*L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19,
-  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-}).addTo(map);*/
+L.maptiler.maptilerLayer({
+  apiKey: key,
+  style: "https://api.maptiler.com/maps/019dd959-84c1-7825-acea-dda99483f25e/style.json?key=FrMSh0rZXij8VQlwBM3v",
+}).addTo(map);
 
-const redIcon = L.icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
+const planeIcon = L.icon({
+  iconUrl: '../assets/vodka.gif',
+  iconSize: [55, 55],
+  iconAnchor: [18, 18],
+  popupAnchor: [0, -18]
 });
 
 let compassBase = null;
@@ -63,54 +59,131 @@ function updateCompassDistance(distanceKm) {
 
 let marker = null;
 let lastLocation = null;
+let currentHeading = 0;
+let animationFrame = null;
+let isUpdating = false;
 
-async function updateLocation() {
-  const response = await fetch('current_location.json?' + Date.now());
-  const current_location = await response.json();
-  const current_coords = [current_location.lat, current_location.lng];
-  const direction = current_location.heading
-  const distance = current_location.distance
+function shortestAngleDelta(from, to) {
+  return ((to - from + 540) % 360) - 180;
+}
 
-  const locationChanged =
-    !lastLocation ||
-    lastLocation[0] !== current_location.lat ||
-    lastLocation[1] !== current_location.lng;
-
-  rotateCompassSmooth(direction)
-  updateCompassDistance(distance)
-
-  const weather = await getWeather(current_location.lat, current_location.lng);
-  const weatherInfo = getWeatherInfo(weather.weather_code);
-
-  const popupHtml = `
-    <div style="min-width: 190px; line-height: 1.45;">
-      <div style="font-weight: 700; font-size: 15px; margin-bottom: 8px;">
-        ${current_location.name || 'Current location'}
-      </div>
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-        <span style="font-size: 24px;">${weatherInfo.icon}</span>
-        <span>${weatherInfo.text}</span>
-      </div>
-      <div><strong>Temperature:</strong> ${weather.temperature_2m} °C</div>
-      <div><strong>Wind:</strong> ${weather.wind_speed_10m} km/h</div>
-    </div>
-  `;
-
-  if (!marker) {
-    marker = L.marker([current_location.lat, current_location.lng], { icon: redIcon })
-      .addTo(map)
-      .bindPopup(popupHtml);
-  } else {
-    marker.setLatLng([current_location.lat, current_location.lng]);
-    marker.setPopupContent(popupHtml);
+function animatePlane(marker, fromCoords, toCoords, newHeading, duration = 1500) {
+  if (animationFrame) {
+    cancelAnimationFrame(animationFrame);
   }
 
-  if (locationChanged) {
-    map.flyTo(current_coords, 5, {
-      animate: true,
-      duration: 3
-    });
-    lastLocation = current_coords;
+  const start = performance.now();
+  const fromLat = fromCoords[0];
+  const fromLng = fromCoords[1];
+  const toLat = toCoords[0];
+  const toLng = toCoords[1];
+
+  const startHeading = currentHeading;
+  const headingDelta = shortestAngleDelta(startHeading, newHeading);
+
+  function step(now) {
+    const t = Math.min((now - start) / duration, 1);
+
+    const lat = fromLat + (toLat - fromLat) * t;
+    const lng = fromLng + (toLng - fromLng) * t;
+    const heading = startHeading + headingDelta * t;
+
+    marker.setLatLng([lat, lng]);
+    marker.setRotationAngle(heading);
+
+    if (t < 1) {
+      animationFrame = requestAnimationFrame(step);
+    } else {
+      currentHeading = newHeading;
+      animationFrame = null;
+    }
+  }
+
+  animationFrame = requestAnimationFrame(step);
+}
+
+async function updateLocation() {
+  if (isUpdating) return;
+  isUpdating = true;
+
+  try {
+    const response = await fetch('current_location.json?' + Date.now());
+    const current_location = await response.json();
+    const current_coords = [current_location.lat, current_location.lng];
+    const direction = current_location.heading ?? 0;
+    const distance = current_location.distance ?? 0;
+
+    const locationChanged =
+      !lastLocation ||
+      lastLocation[0] !== current_location.lat ||
+      lastLocation[1] !== current_location.lng;
+
+    rotateCompassSmooth(direction);
+    updateCompassDistance(distance);
+
+    const weather = await getWeather(current_location.lat, current_location.lng);
+    const weatherInfo = getWeatherInfo(weather.weather_code);
+
+    const popupHtml = `
+      <div class="weather-popup">
+        <div class="weather-popup__title">
+          ${current_location.name || 'Current location'}
+        </div>
+
+        <div class="weather-popup__status">
+          <span class="weather-popup__icon">${weatherInfo.icon}</span>
+          <span class="weather-popup__text">${weatherInfo.text}</span>
+        </div>
+
+        <div class="weather-popup__row">
+          <span class="weather-popup__label">Temperature</span>
+          <span class="weather-popup__value">${weather.temperature_2m} °C</span>
+        </div>
+
+        <div class="weather-popup__row">
+          <span class="weather-popup__label">Wind</span>
+          <span class="weather-popup__value">${weather.wind_speed_10m} km/h</span>
+        </div>
+      </div>
+    `;
+
+    const popupOptions = {
+      className: 'game-popup',
+      maxWidth: 240,
+      minWidth: 210,
+      offset: [0, -8]
+    };
+
+    if (!marker) {
+      marker = L.marker(current_coords, {
+        icon: planeIcon,
+        rotationAngle: direction,
+        rotationOrigin: 'center center'
+      }).addTo(map).bindPopup(popupHtml, popupOptions);
+
+      currentHeading = direction;
+    } else {
+      marker.setPopupContent(popupHtml);
+
+      if (locationChanged) {
+        animatePlane(marker, lastLocation, current_coords, direction, 1800);
+      } else {
+        marker.setRotationAngle(direction);
+        currentHeading = direction;
+      }
+    }
+
+    if (locationChanged) {
+      map.flyTo(current_coords, 5, {
+        animate: true,
+        duration: 3
+      });
+      lastLocation = current_coords;
+    }
+  } catch (error) {
+    console.error('updateLocation error:', error);
+  } finally {
+    isUpdating = false;
   }
 }
 
@@ -119,7 +192,7 @@ setInterval(updateLocation, 2000);
 
 //Victory screen invocation
 //showVictory({
- // airports: ['HEL', 'ARN', 'CPH', 'AMS', 'FRA'],  // Keep the component static for now
-//  time: '12:34',                                     // Keep the component static for now
- // points: 870                                        // Keep the component static for now
-});
+//  airports: ['HEL', 'ARN', 'CPH', 'AMS', 'FRA'],
+//  time: '12:34',
+//  points: 870
+//});

@@ -240,7 +240,6 @@ function startGame(level) {
     ? `Aloitetaan taso ${level}...`
     : `Starting Level ${level}...`;
   alert(msg);
-
   // Make API call to start game
   fetch('/api/start_game', {
     method: 'POST',
