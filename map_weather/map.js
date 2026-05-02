@@ -63,38 +63,74 @@ let currentHeading = 0;
 let animationFrame = null;
 let isUpdating = false;
 
-function shortestAngleDelta(from, to) {
-  return ((to - from + 540) % 360) - 180;
-}
-
-function animatePlane(marker, fromCoords, toCoords, newHeading, duration = 900) {
+function animatePlaneArc(marker, fromCoords, toCoords, duration = 2200, arcHeight = 0.18) {
   if (animationFrame) {
     cancelAnimationFrame(animationFrame);
   }
 
   const start = performance.now();
-  const fromLat = fromCoords[0];
-  const fromLng = fromCoords[1];
-  const toLat = toCoords[0];
-  const toLng = toCoords[1];
 
-  const startHeading = currentHeading;
-  const headingDelta = shortestAngleDelta(startHeading, newHeading);
+  const p0 = { lat: fromCoords[0], lng: fromCoords[1] };
+  const p2 = { lat: toCoords[0], lng: toCoords[1] };
+
+  const mid = {
+    lat: (p0.lat + p2.lat) / 2,
+    lng: (p0.lng + p2.lng) / 2
+  };
+
+  const dx = p2.lng - p0.lng;
+  const dy = p2.lat - p0.lat;
+  const dist = Math.sqrt(dx * dx + dy * dy) || 0.0001;
+
+  const nx = -dy / dist;
+  const ny = dx / dist;
+
+  const curveAmount = dist * arcHeight;
+
+  const p1 = {
+    lat: mid.lat + ny * curveAmount,
+    lng: mid.lng + nx * curveAmount
+  };
+
+  function bezierPoint(t) {
+    const oneMinusT = 1 - t;
+    return {
+      lat: oneMinusT * oneMinusT * p0.lat +
+           2 * oneMinusT * t * p1.lat +
+           t * t * p2.lat,
+      lng: oneMinusT * oneMinusT * p0.lng +
+           2 * oneMinusT * t * p1.lng +
+           t * t * p2.lng
+    };
+  }
+
+  function bezierTangent(t) {
+    return {
+      lat: 2 * (1 - t) * (p1.lat - p0.lat) + 2 * t * (p2.lat - p1.lat),
+      lng: 2 * (1 - t) * (p1.lng - p0.lng) + 2 * t * (p2.lng - p1.lng)
+    };
+  }
 
   function step(now) {
-    const t = Math.min((now - start) / duration, 1);
+    const tRaw = Math.min((now - start) / duration, 1);
 
-    const lat = fromLat + (toLat - fromLat) * t;
-    const lng = fromLng + (toLng - fromLng) * t;
-    const heading = startHeading + headingDelta * t;
+    // easing for nicer takeoff/landing feel
+    const t = tRaw < 0.5
+      ? 2 * tRaw * tRaw
+      : 1 - Math.pow(-2 * tRaw + 2, 2) / 2;
 
-    marker.setLatLng([lat, lng]);
-    marker.setRotationAngle(heading);
+    const pos = bezierPoint(t);
+    const tan = bezierTangent(t);
 
-    if (t < 1) {
+    const angle = Math.atan2(tan.lng, tan.lat) * 180 / Math.PI;
+
+    marker.setLatLng([pos.lat, pos.lng]);
+    marker.setRotationAngle(angle);
+
+    if (tRaw < 1) {
       animationFrame = requestAnimationFrame(step);
     } else {
-      currentHeading = newHeading;
+      currentHeading = angle;
       animationFrame = null;
     }
   }
@@ -162,13 +198,14 @@ async function updateLocation() {
         rotationOrigin: 'center center'
       }).addTo(map).bindPopup(popupHtml, popupOptions);
 
-      currentHeading = direction;
+      currentHeading = m_direction;
     } else {
       marker.setPopupContent(popupHtml);
 
-      if (locationChanged) {
-        animatePlane(marker, lastLocation, current_coords, m_direction, 1800);
+      if (locationChanged && lastLocation) {
+        animatePlaneArc(marker, lastLocation, current_coords, 2200, 0.18);
       } else {
+        marker.setLatLng(current_coords);
         marker.setRotationAngle(m_direction);
         currentHeading = m_direction;
       }
