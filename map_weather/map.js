@@ -113,8 +113,6 @@ function animatePlaneArc(marker, fromCoords, toCoords, duration = 2200, arcHeigh
 
   function step(now) {
     const tRaw = Math.min((now - start) / duration, 1);
-
-    // easing for nicer takeoff/landing feel
     const t = tRaw < 0.5
       ? 2 * tRaw * tRaw
       : 1 - Math.pow(-2 * tRaw + 2, 2) / 2;
@@ -206,8 +204,6 @@ async function updateLocation() {
         animatePlaneArc(marker, lastLocation, current_coords, 2200, 0.18);
       } else {
         marker.setLatLng(current_coords);
-        marker.setRotationAngle(m_direction);
-        currentHeading = m_direction;
       }
     }
 
