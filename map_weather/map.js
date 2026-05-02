@@ -8,12 +8,36 @@ L.maptiler.maptilerLayer({
   style: "https://api.maptiler.com/maps/019dd959-84c1-7825-acea-dda99483f25e/style.json?key=FrMSh0rZXij8VQlwBM3v",
 }).addTo(map);
 
-const planeIcon = L.icon({
-  iconUrl: '../assets/vodka.gif',
-  iconSize: [55, 55],
-  iconAnchor: [18, 18],
-  popupAnchor: [0, -18]
-});
+const aircraftDisplayNames = {
+  small: 'ATR 72',
+  medium: 'Boeing 737',
+  large: 'Airbus A380'
+};
+
+const planeIcons = {
+  small: L.icon({
+    iconUrl: '../assets/plane_small.png',
+    iconSize: [42, 42],
+    iconAnchor: [21, 21],
+    popupAnchor: [0, -18]
+  }),
+  medium: L.icon({
+    iconUrl: '../assets/plane_medium.png',
+    iconSize: [55, 55],
+    iconAnchor: [27, 27],
+    popupAnchor: [0, -18]
+  }),
+  large: L.icon({
+    iconUrl: '../assets/plane_large.png',
+    iconSize: [72, 72],
+    iconAnchor: [36, 36],
+    popupAnchor: [0, -18]
+  })
+};
+
+function getPlaneIcon(type) {
+  return planeIcons[type] || planeIcons.medium;
+}
 
 let compassBase = null;
 let currentRotation = 0;
@@ -57,6 +81,22 @@ function updateCompassDistance(distanceKm) {
   }
 }
 
+function updateDataPanel(currentLocation) {
+  const aircraftType = currentLocation.aircraft_type || 'medium';
+
+  const aircraftTypeEl = document.getElementById('aircraft-type');
+  const aircraftNameEl = document.getElementById('aircraft-name');
+  const flightCo2El = document.getElementById('flight-co2');
+  const sessionCo2El = document.getElementById('session-co2');
+  const flightDistanceEl = document.getElementById('flight-distance');
+
+  if (aircraftTypeEl) aircraftTypeEl.textContent = aircraftType.toUpperCase();
+  if (aircraftNameEl) aircraftNameEl.textContent = currentLocation.aircraft_name || aircraftDisplayNames[aircraftType] || 'Unknown aircraft';
+  if (flightCo2El) flightCo2El.textContent = `${Number(currentLocation.flight_co2 || 0).toFixed(2)} kg`;
+  if (sessionCo2El) sessionCo2El.textContent = `${Number(currentLocation.session_co2 || 0).toFixed(2)} kg`;
+  if (flightDistanceEl) flightDistanceEl.textContent = `${Math.round(currentLocation.flight_distance || 0)} km`;
+}
+
 let marker = null;
 let lastLocation = null;
 let currentHeading = 0;
@@ -84,7 +124,6 @@ function animatePlaneArc(marker, fromCoords, toCoords, duration = 2200, arcHeigh
 
   const nx = -dy / dist;
   const ny = dx / dist;
-
   const curveAmount = dist * arcHeight;
 
   const p1 = {
@@ -119,7 +158,6 @@ function animatePlaneArc(marker, fromCoords, toCoords, duration = 2200, arcHeigh
 
     const pos = bezierPoint(t);
     const tan = bezierTangent(t);
-
     const angle = Math.atan2(tan.lng, tan.lat) * 180 / Math.PI;
 
     marker.setLatLng([pos.lat, pos.lng]);
@@ -142,27 +180,29 @@ async function updateLocation() {
 
   try {
     const response = await fetch('current_location.json?' + Date.now());
-    const current_location = await response.json();
-    const current_coords = [current_location.lat, current_location.lng];
-    const direction = current_location.heading ?? 0;
-    const m_direction = current_location.m_direction ?? 0;
-    const distance = current_location.distance ?? 0;
+    const currentLocation = await response.json();
+    const currentCoords = [currentLocation.lat, currentLocation.lng];
+    const direction = currentLocation.heading ?? 0;
+    const mDirection = currentLocation.m_direction ?? 0;
+    const aircraftType = currentLocation.aircraft_type || 'medium';
+    const distanceToLuggage = currentLocation.distance_to_luggage ?? 0;
 
     const locationChanged =
       !lastLocation ||
-      lastLocation[0] !== current_location.lat ||
-      lastLocation[1] !== current_location.lng;
+      lastLocation[0] !== currentLocation.lat ||
+      lastLocation[1] !== currentLocation.lng;
 
     rotateCompassSmooth(direction);
-    updateCompassDistance(distance);
+    updateCompassDistance(distanceToLuggage);
+    updateDataPanel(currentLocation);
 
-    const weather = await getWeather(current_location.lat, current_location.lng);
+    const weather = await getWeather(currentLocation.lat, currentLocation.lng);
     const weatherInfo = getWeatherInfo(weather.weather_code);
 
     const popupHtml = `
       <div class="weather-popup">
         <div class="weather-popup__title">
-          ${current_location.name || 'Current location'}
+          ${currentLocation.name || 'Current location'}
         </div>
 
         <div class="weather-popup__status">
@@ -190,29 +230,30 @@ async function updateLocation() {
     };
 
     if (!marker) {
-      marker = L.marker(current_coords, {
-        icon: planeIcon,
-        rotationAngle: m_direction,
+      marker = L.marker(currentCoords, {
+        icon: getPlaneIcon(aircraftType),
+        rotationAngle: mDirection,
         rotationOrigin: 'center center'
       }).addTo(map).bindPopup(popupHtml, popupOptions);
 
-      currentHeading = m_direction;
+      currentHeading = mDirection;
     } else {
       marker.setPopupContent(popupHtml);
+      marker.setIcon(getPlaneIcon(aircraftType));
 
       if (locationChanged && lastLocation) {
-        animatePlaneArc(marker, lastLocation, current_coords, 2200, 0.18);
+        animatePlaneArc(marker, lastLocation, currentCoords, 2200, 0.18);
       } else {
-        marker.setLatLng(current_coords);
+        marker.setLatLng(currentCoords);
       }
     }
 
     if (locationChanged) {
-      map.flyTo(current_coords, 5, {
+      map.flyTo(currentCoords, 5, {
         animate: true,
         duration: 3
       });
-      lastLocation = current_coords;
+      lastLocation = currentCoords;
     }
   } catch (error) {
     console.error('updateLocation error:', error);
@@ -223,10 +264,3 @@ async function updateLocation() {
 
 updateLocation();
 setInterval(updateLocation, 2000);
-
-//Victory screen invocation
-//showVictory({
-//  airports: ['HEL', 'ARN', 'CPH', 'AMS', 'FRA'],
-//  time: '12:34',
-//  points: 870
-//});
