@@ -3,7 +3,7 @@ from location_playerRegistration import *
 from luggage_spawner import *
 from distance_direction import *
 from flight_emissions import FlightEmissions
-from save_to_JSON import *
+from location_visited_airports_to_JSON import *
 
 connection = mysql.connector.connect(
     host='127.0.0.1',
