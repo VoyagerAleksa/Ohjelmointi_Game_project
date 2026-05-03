@@ -70,10 +70,10 @@ function injectPanelStyles() {
   s.textContent = `
     #game-panel {
       position: fixed;
-      bottom: 180px;
+      bottom: 90px;
       right: 0;
       z-index: 9998;
-      width: 340px;
+      width: 17rem;
       background: transparent;
       border: none;
       border-top: 1px solid #1e4070;

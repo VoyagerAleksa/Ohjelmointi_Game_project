@@ -97,7 +97,7 @@ function injectStyles() {
   const s = document.createElement('style');
   s.textContent = `
     #lug-fab {
-      position: fixed; bottom: 24px; right: 24px; z-index: 10000;
+      position: fixed; bottom: 10px; right: 24px; z-index: 10000;
       width: 80px; height: 80px; border-radius: 50%;
       background: #0e2040; border: 2px solid #1e4a7a;
       box-shadow: 0 4px 20px rgba(0,0,0,0.45);
