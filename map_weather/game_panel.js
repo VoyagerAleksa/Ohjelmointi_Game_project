@@ -70,16 +70,17 @@ function injectPanelStyles() {
   s.textContent = `
     #game-panel {
       position: fixed;
-      bottom: 160px;
-      right: 24px;
+      bottom: 180px;
+      right: 0;
       z-index: 9998;
-      width: 260px;
-      background: rgba(7, 16, 30, 0.96);
-      border: 1px solid #1e4070;
-      border-radius: 14px;
+      width: 340px;
+      background: transparent;
+      border: none;
+      border-top: 1px solid #1e4070;
+      border-radius: 0;
       padding: 14px 16px;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+      box-shadow: none;
+      backdrop-filter: none;
       font-family: 'Segoe UI', system-ui, sans-serif;
       display: flex;
       flex-direction: column;
