@@ -43,6 +43,12 @@ body {
 /* compass */
 .compass-control {
   margin: 0 !important;
+  padding: 0 !important;
+  width: 370px;
+  height: 100vh;
+  background: #07101e;
+  border-left: 1px solid #1e4070;
+  backdrop-filter: blur(10px);
 }
 
 .leaflet-top.leaflet-right .compass-control {
@@ -50,16 +56,20 @@ body {
 }
 
 .compass-wrap {
-  background: rgba(7, 16, 30, 0.85);
   position: relative;
-  width: 300px;
+  width: 370px;
   height: 340px;
+  pointer-events: all;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .compass-base {
   position: absolute;
   top: 0;
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: 300px;
   height: 300px;
   display: block;
