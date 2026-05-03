@@ -19,6 +19,12 @@
 
     <div id="data" class="flight-panel">
         <div class="flight-card">
+            <div class="flight-label">Current location</div>
+            <div id="current-location" class="flight-value">—</div>
+            <div class="flight-subvalue">Current airport</div>
+        </div>
+
+        <div class="flight-card">
             <div class="flight-label">Aircraft</div>
             <div id="aircraft-type" class="flight-value">—</div>
             <div id="aircraft-name" class="flight-subvalue">Waiting for flight data</div>
@@ -41,14 +47,14 @@
             <div id="session-co2" class="flight-value">0.00 kg</div>
             <div class="flight-subvalue">Total session emissions</div>
         </div>
-    </div>
+</div>
 
     <script src="weather.js"></script>
     <script src="map.js"></script>
-    <script src="victory.js"></script>
+    <script src="../victory/victory.js"></script>
     <script src="assistant.js"></script>
     <script src="game_panel.js"></script>
-    <button onclick="window.location.href='web_page/index.html'" id="menu-btn">
+    <button onclick="window.location.href='../web_page/index.html'" id="menu-btn">
           <img src="../assets/cat_botton.jpg" alt="Menu" style="width:50px;height:50px;object-fit:cover;border-radius:50%;">
           <span id="menu-btn-label">Menu</span>
     </button>

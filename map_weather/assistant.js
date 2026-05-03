@@ -97,17 +97,44 @@ function injectStyles() {
   const s = document.createElement('style');
   s.textContent = `
     #lug-fab {
-      position: fixed; bottom: 10px; right: 24px; z-index: 10000;
-      width: 80px; height: 80px; border-radius: 50%;
-      background: #0e2040; border: 2px solid #1e4a7a;
+      position: fixed;
+      left: 24px;
+      bottom: 190px;
+      z-index: 10001;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #0e2040;
+      border: 2px solid #1e4a7a;
       box-shadow: 0 4px 20px rgba(0,0,0,0.45);
-      cursor: pointer; padding: 0; overflow: hidden;
-      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, opacity 0.3s;
       outline: none;
     }
-    #lug-fab:hover { transform: scale(1.1); box-shadow: 0 6px 24px rgba(255,224,102,0.35); border-color: #ffe066; }
-    #lug-fab:active { transform: scale(0.95); }
+
+    #lug-fab:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 24px rgba(255,224,102,0.35);
+      border-color: #ffe066;
+    }
+
+    #lug-fab:active {
+      transform: scale(0.95);
+    }
+
+    @media (max-width: 700px) {
+      #lug-fab {
+        left: 16px;
+        bottom: 132px;
+        width: 68px;
+        height: 68px;
+      }
+    }
   `;
   document.head.appendChild(s);
 }

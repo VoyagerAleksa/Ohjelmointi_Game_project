@@ -10,25 +10,25 @@ L.maptiler.maptilerLayer({
 
 const aircraftDisplayNames = {
   small: 'ATR 72',
-  medium: 'Boeing 737',
+  medium: 'Airbus A320',
   large: 'Airbus A380'
 };
 
 const planeIcons = {
   small: L.icon({
-    iconUrl: '../assets/plane_small.png',
+    iconUrl: '/assets/plane_small.png',
     iconSize: [42, 42],
     iconAnchor: [21, 21],
     popupAnchor: [0, -18]
   }),
   medium: L.icon({
-    iconUrl: '../assets/plane_medium.png',
+    iconUrl: '/assets/plane_medium.png',
     iconSize: [55, 55],
     iconAnchor: [27, 27],
     popupAnchor: [0, -18]
   }),
   large: L.icon({
-    iconUrl: '../assets/plane_large.png',
+    iconUrl: '/assets/plane_large.png',
     iconSize: [72, 72],
     iconAnchor: [36, 36],
     popupAnchor: [0, -18]
@@ -52,7 +52,7 @@ const Compass = L.Control.extend({
 
     div.innerHTML = `
       <div class="compass-wrap">
-        <img src="../assets/Compass.png" alt="compass" class="compass-base">
+        <img src="/assets/Compass.png" alt="compass" class="compass-base">
         <div class="compass-arrow"></div>
         <div class="compass-distance" id="compass-distance">0 km</div>
       </div>
@@ -77,24 +77,50 @@ function rotateCompassSmooth(targetAngle) {
 function updateCompassDistance(distanceKm) {
   const distanceEl = document.getElementById('compass-distance');
   if (distanceEl) {
-    distanceEl.textContent = `${Math.round(distanceKm)} km`;
+    distanceEl.textContent = `${Math.round(distanceKm || 0)} km`;
   }
 }
 
-function updateDataPanel(currentLocation) {
-  const aircraftType = currentLocation.aircraft_type || 'medium';
+function updateDataPanel(mapData, flightData) {
+  const aircraftType = flightData.aircraft_type || 'medium';
 
+  const currentLocationEl = document.getElementById('current-location');
   const aircraftTypeEl = document.getElementById('aircraft-type');
   const aircraftNameEl = document.getElementById('aircraft-name');
   const flightCo2El = document.getElementById('flight-co2');
   const sessionCo2El = document.getElementById('session-co2');
   const flightDistanceEl = document.getElementById('flight-distance');
 
-  if (aircraftTypeEl) aircraftTypeEl.textContent = aircraftType.toUpperCase();
-  if (aircraftNameEl) aircraftNameEl.textContent = currentLocation.aircraft_name || aircraftDisplayNames[aircraftType] || 'Unknown aircraft';
-  if (flightCo2El) flightCo2El.textContent = `${Number(currentLocation.flight_co2 || 0).toFixed(2)} kg`;
-  if (sessionCo2El) sessionCo2El.textContent = `${Number(currentLocation.session_co2 || 0).toFixed(2)} kg`;
-  if (flightDistanceEl) flightDistanceEl.textContent = `${Math.round(currentLocation.flight_distance || 0)} km`;
+  if (currentLocationEl) {
+    currentLocationEl.textContent =
+      mapData.name ||
+      flightData.current_airport_name ||
+      flightData.current_location ||
+      '—';
+  }
+
+  if (aircraftTypeEl) {
+    aircraftTypeEl.textContent = aircraftType.toUpperCase();
+  }
+
+  if (aircraftNameEl) {
+    aircraftNameEl.textContent =
+      flightData.aircraft_name ||
+      aircraftDisplayNames[aircraftType] ||
+      'Unknown aircraft';
+  }
+
+  if (flightCo2El) {
+    flightCo2El.textContent = `${Number(flightData.flight_co2 || 0).toFixed(2)} kg`;
+  }
+
+  if (sessionCo2El) {
+    sessionCo2El.textContent = `${Number(flightData.session_co2 || 0).toFixed(2)} kg`;
+  }
+
+  if (flightDistanceEl) {
+    flightDistanceEl.textContent = `${Math.round(flightData.flight_distance || 0)} km`;
+  }
 }
 
 let marker = null;
@@ -102,6 +128,7 @@ let lastLocation = null;
 let currentHeading = 0;
 let animationFrame = null;
 let isUpdating = false;
+let gameWonHandled = false;
 
 function animatePlaneArc(marker, fromCoords, toCoords, duration = 2200, arcHeight = 0.18) {
   if (animationFrame) {
@@ -179,30 +206,37 @@ async function updateLocation() {
   isUpdating = true;
 
   try {
-    const response = await fetch('current_location.json?' + Date.now());
-    const currentLocation = await response.json();
-    const currentCoords = [currentLocation.lat, currentLocation.lng];
-    const direction = currentLocation.heading ?? 0;
-    const mDirection = currentLocation.m_direction ?? 0;
-    const aircraftType = currentLocation.aircraft_type || 'medium';
-    const distanceToLuggage = currentLocation.distance_to_luggage ?? 0;
+    const response = await fetch('/api/game_view?' + Date.now());
+    const data = await response.json();
+
+    if (!data.success || !data.view) return;
+
+    const mapData = data.view.map;
+    const flightData = data.view.flight;
+    const gameData = data.view.game;
+
+    const currentCoords = [mapData.lat, mapData.lng];
+    const direction = mapData.heading ?? 0;
+    const mDirection = mapData.m_direction ?? 0;
+    const aircraftType = flightData.aircraft_type || 'medium';
+    const distanceToLuggage = flightData.distance_to_luggage ?? 0;
 
     const locationChanged =
       !lastLocation ||
-      lastLocation[0] !== currentLocation.lat ||
-      lastLocation[1] !== currentLocation.lng;
+      lastLocation[0] !== mapData.lat ||
+      lastLocation[1] !== mapData.lng;
 
     rotateCompassSmooth(direction);
     updateCompassDistance(distanceToLuggage);
-    updateDataPanel(currentLocation);
+    updateDataPanel(mapData, flightData);
 
-    const weather = await getWeather(currentLocation.lat, currentLocation.lng);
+    const weather = await getWeather(mapData.lat, mapData.lng);
     const weatherInfo = getWeatherInfo(weather.weather_code);
 
     const popupHtml = `
       <div class="weather-popup">
         <div class="weather-popup__title">
-          ${currentLocation.name || 'Current location'}
+          ${mapData.name || 'Current location'}
         </div>
 
         <div class="weather-popup__status">
@@ -245,6 +279,7 @@ async function updateLocation() {
         animatePlaneArc(marker, lastLocation, currentCoords, 2200, 0.18);
       } else {
         marker.setLatLng(currentCoords);
+        marker.setRotationAngle(mDirection);
       }
     }
 
@@ -254,6 +289,38 @@ async function updateLocation() {
         duration: 3
       });
       lastLocation = currentCoords;
+    }
+
+    if (gameData?.won && !gameWonHandled) {
+      gameWonHandled = true;
+
+      try {
+        const finishResponse = await fetch('/api/finish_game', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const finishData = await finishResponse.json();
+
+        if (finishData.success) {
+          await fetch('/api/save_score', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              player_name: finishData.player_name,
+              difficulty_level: finishData.difficulty_level,
+              score: finishData.score
+            })
+          });
+        }
+      } catch (e) {
+        console.error('finish/save score error:', e);
+      }
+
+      if (typeof showVictoryScreen === 'function') {
+        showVictoryScreen();
+      } else {
+        alert('You found the luggage!');
+      }
     }
   } catch (error) {
     console.error('updateLocation error:', error);
