@@ -9,7 +9,6 @@ let fogCircle = null;
 window.addEventListener('load', () => {
   injectStyles();
   injectUI();
-  startNewGame();
 });
 
 // ── Country loading ──
