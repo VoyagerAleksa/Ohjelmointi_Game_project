@@ -7,7 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <script src="../audio/sound.js" defer></script>
-
 </head>
 <body>
 <!-- Stars -->
@@ -46,7 +45,7 @@
       <!-- Success state -->
       <div class="auth-success" id="auth-success">
         <img src="../assets/loading.gif" class="success-icon" alt="Loading animation">
-       <div class="success-name" id="success-name">WELCOME!</div>
+        <div class="success-name" id="success-name">WELCOME!</div>
         <div class="success-msg" id="success-msg">Preparing your runway...</div>
       </div>
 
@@ -99,8 +98,8 @@
   <div class="screen active" id="screen-main">
     <div class="logo-block">
       <img src="../assets/airplane.gif" class="logo-icon" alt="Airplane animation">
-    <div class="logo-title" data-t="gameName">Find the Bag!</div>
-</div>
+      <div class="logo-title" data-t="gameName">Find the Bag!</div>
+    </div>
 
     <!-- User info bar -->
     <div class="user-bar">
@@ -118,7 +117,7 @@
       <button class="mbtn disabled" id="btn-continue">
         <span data-t="continue">CONTINUE</span><span class="arr">→</span>
       </button>
-      <button class="mbtn" onclick="go('screen-leaderboard')">
+      <button class="mbtn" onclick="openLeaderboard()">
         <span data-t="leaderboard">LEADERBOARD</span><span class="arr">→</span>
       </button>
       <button class="mbtn" onclick="go('screen-rules')">
@@ -178,15 +177,15 @@
       <div class="setting-row">
         <span class="setting-label" data-t="sound">Sound</span>
         <div class="toggle-group">
-          <button class="tog on active"  onclick="toggle('sound','on')"  id="sound-on"  data-t="on">ON</button>
-          <button class="tog off"        onclick="toggle('sound','off')" id="sound-off" data-t="off">OFF</button>
+          <button class="tog on active" onclick="toggle('sound','on')" id="sound-on" data-t="on">ON</button>
+          <button class="tog off" onclick="toggle('sound','off')" id="sound-off" data-t="off">OFF</button>
         </div>
       </div>
       <div class="setting-row">
         <span class="setting-label" data-t="hints">Hints</span>
         <div class="toggle-group">
-          <button class="tog on active"  onclick="toggle('hints','on')"  id="hints-on"  data-t="on">ON</button>
-          <button class="tog off"        onclick="toggle('hints','off')" id="hints-off" data-t="off">OFF</button>
+          <button class="tog on active" onclick="toggle('hints','on')" id="hints-on" data-t="on">ON</button>
+          <button class="tog off" onclick="toggle('hints','off')" id="hints-off" data-t="off">OFF</button>
         </div>
       </div>
     </div>
@@ -199,13 +198,7 @@
       <h2 data-t="topPlayers">TOP PLAYERS</h2>
       <div class="line"></div>
     </div>
-    <div class="leaders">
-      <div class="leader-row top"><span class="rank r1">1</span><span class="lname">...</span><span class="lscore"> pts</span></div>
-      <div class="leader-row top"><span class="rank r2">2</span><span class="lname">...</span><span class="lscore"> pts</span></div>
-      <div class="leader-row top"><span class="rank r3">3</span><span class="lname">...</span><span class="lscore"> pts</span></div>
-      <div class="leader-row"><span class="rank rn">4</span><span class="lname">...</span><span class="lscore"> pts</span></div>
-      <div class="leader-row"><span class="rank rn">5</span><span class="lname">...</span><span class="lscore"> pts</span></div>
-    </div>
+    <div class="leaders" id="leaders-list"></div>
     <button class="back-btn" onclick="go('screen-main')" data-t="back">← Back</button>
   </div>
 
