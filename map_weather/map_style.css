@@ -50,6 +50,7 @@ body {
 }
 
 .compass-wrap {
+  background: rgba(7, 16, 30, 0.85);
   position: relative;
   width: 300px;
   height: 340px;
