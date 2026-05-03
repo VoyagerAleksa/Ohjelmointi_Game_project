@@ -71,7 +71,7 @@ function rotateCompassSmooth(targetAngle) {
   let delta = ((targetAngle - currentRotation + 540) % 360) - 180;
   currentRotation += delta;
 
-  compassBase.style.transform = `rotate(${currentRotation}deg)`;
+  compassBase.style.transform = `translateX(-50%) rotate(${currentRotation}deg)`;
 }
 
 function updateCompassDistance(distanceKm) {
