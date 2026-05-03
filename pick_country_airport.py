@@ -1,19 +1,7 @@
 import random
-import mysql.connector
-
-connection = mysql.connector.connect(
-    host='127.0.0.1',
-    port=3306,
-    database='game_project',
-    user='marleenk',
-    password='salasana',
-    autocommit=True
-)
-
-cursor = connection.cursor()
 
 def kysy_seuraava_maa(connection):
-    cursor = connection.cursor()
+    local_cursor = connection.cursor()
     sql = """
         SELECT DISTINCT country.name, country.iso_country
         FROM country
@@ -21,8 +9,8 @@ def kysy_seuraava_maa(connection):
         WHERE airport.continent = 'EU'
         ORDER BY country.name
     """
-    cursor.execute(sql)
-    countries = cursor.fetchall()
+    local_cursor.execute(sql)
+    countries = local_cursor.fetchall()
 
     print("\nMihin maahan haluat lentää seuraavaksi?\n")
     for i, country in enumerate(countries, start=1):
@@ -32,21 +20,21 @@ def kysy_seuraava_maa(connection):
         try:
             choice = int(input("\nValitse maan numero: "))
             if 1 <= choice <= len(countries):
-                return countries[choice - 1][1]  # palauttaa iso_country
-        except:
+                return countries[choice - 1][1]
+        except Exception:
             pass
         print("Virheellinen valinta, yritä uudelleen.")
 
 def valitse_lentokentta(connection, iso_country):
-    cursor = connection.cursor()
+    local_cursor = connection.cursor()
     sql = """
         SELECT ident, name
         FROM airport
-        WHERE iso_country = %s
+        WHERE iso_country = %s and type = "large_airport"
         ORDER BY name
     """
-    cursor.execute(sql, (iso_country,))
-    airports = cursor.fetchall()
+    local_cursor.execute(sql, (iso_country,))
+    airports = local_cursor.fetchall()
 
     if not airports:
         print("Ei saatavilla olevia lentokenttiä tässä maassa.")
@@ -69,7 +57,7 @@ def valitse_lentokentta(connection, iso_country):
                     valittu = airports[airport_choice - 1]
                     print(f"\nValitsit lentokentän: {valittu[1]} ({valittu[0]})")
                     return valittu[0]
-            except:
+            except Exception:
                 pass
             print("Virheellinen valinta, yritä uudelleen.")
         elif choice == "2":
@@ -77,9 +65,4 @@ def valitse_lentokentta(connection, iso_country):
             print(f"\nSatunnainen lentokenttä: {satunnainen[1]} ({satunnainen[0]})")
             return satunnainen[0]
         else:
-            print("Virheellinen valinta, syötä 1 tai 2.")
-
-
-iso_country = kysy_seuraava_maa(connection)
-airport_ident = valitse_lentokentta(connection, iso_country)
-print("\nSeuraava lentokenttä valittu:", airport_ident)
+            print("Virheellinen valinta, syötä 1 или 2.")
