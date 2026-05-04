@@ -13,8 +13,8 @@ connection = mysql.connector.connect(
     host='127.0.0.1',
     port=3306,
     database='game_project',
-    user='boris',
-    password='Bubalar60',
+    user='root',
+    password='BubaBuba60',
     autocommit=True,
     charset='utf8mb4',
     use_unicode=True
@@ -546,14 +546,7 @@ def calculate_final_score(game_state):
 @app.before_request
 def initialize_session():
     if 'game_state' not in session:
-        session['game_state'] = {
-            'current_location': None,
-            'visited_airports': [],
-            'player_name': None,
-            'game_started': False,
-            'difficulty_level': None,
-            'won': False
-        }
+        session['game_state'] = None
 
 
 @app.route('/')
@@ -651,9 +644,11 @@ def start_game():
 
 @app.route('/api/game_view', methods=['GET'])
 def get_game_view():
-    game_state = session.get('game_state', {})
-    if not game_state:
+    game_state = session.get('game_state')
+
+    if not game_state or not game_state.get('question_text'):
         return jsonify({'success': False, 'error': 'No active game'}), 400
+
     return jsonify({'success': True, 'view': build_game_view(game_state)})
 
 
